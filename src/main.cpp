@@ -1,7 +1,8 @@
-#include <iostream>
+#include "fmt/core.h"
+#include "logging.hpp"
 
 int main()
 {
-    std::cout << "Hello, World!" << std::endl;
+    LOG("Hello, world!");
     return 0;
 }
