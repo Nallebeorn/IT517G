@@ -1,14 +1,21 @@
 #pragma once
-#include <time.h>
+#include <ctime>
+#include "GLFW/glfw3.h"
 #include "fmt/core.h"
 #include "fmt/chrono.h"
 
-#define LOG(formatstr, ...) __LogInternal("[{:%H:%M:%S}] {}:{}: " formatstr "\n", __FILE__ + 3, __LINE__, ## __VA_ARGS__)
+#define LOG(formatstr, ...) LogInternal("[{:f}] {}:{}: " formatstr "\n", ((const char *)__FILE__ + 3), __LINE__, ## __VA_ARGS__)
 
 template<typename ...Args>
-void __LogInternal(const char *formatstr, const char *file, int line, const Args ...args)
+void LogInternal(const char *formatstr, const char *file, int line, const Args ...args)
 {
-    time_t t = time(0);
-
-    fmt::print(formatstr, fmt::localtime(t), file, line, args...);
+    try
+    {
+        fmt::print(formatstr, glfwGetTime(), file, line, args...);
+    }
+    catch (fmt::format_error &e)
+    {
+        // This feels ironic to do
+        fmt::print("(!! LOG ERROR !!) {}:{}: {} :: {}", file, line, e.what(), formatstr);
+    }
 }
