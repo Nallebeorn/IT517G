@@ -22,7 +22,7 @@ char *File::LoadIntoNewBuffer(const char *filename, size_t *outLength)
 
     if (!file)
     {
-        LOG("Couldn't load file {}", filename);
+        LOG("Couldn't load file %s", filename);
         return nullptr;
     }
 

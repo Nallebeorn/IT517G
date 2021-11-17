@@ -6,16 +6,25 @@
 #include "logging.hpp"
 #include "File.hpp"
 
-static const float vertices[]
+static const float quadVertices[]
 {
+     0.5f,  0.5f, 0.0f,
+    -0.5f,  0.5f, 0.0f,
     -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f,  0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+};
+
+static const uint32_t quadIndices[]
+{
+    0, 1, 2,
+    2, 3, 0,
 };
 
 static GLFWwindow *window;
 static uint32_t spriteShader;
 static uint32_t quadVao;
+
+void PlatformInit();
 
 static void GlfwErrorCallback(int code, const char *description)
 {
@@ -184,13 +193,21 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
     uint32_t vbo;
     glGenBuffers(1, &vbo);
 
+    uint32_t ebo;
+    glGenBuffers(1, &ebo);
+
     glBindVertexArray(quadVao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
 }
 
 void Application::RunMainLoop()
@@ -200,12 +217,12 @@ void Application::RunMainLoop()
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(spriteShader);
         glBindVertexArray(quadVao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
 
-        fflush(stdout); // Sometimes needed to make sure prints always reach CLION terminal
+        fflush(stdout); // Sometimes needed to make sure messages are printed to terminal without waiting for a buffer to be filled
     }
 }
 
