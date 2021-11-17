@@ -1,7 +1,8 @@
 #include "Application.hpp"
+#include <stdio.h>
+#include <stdlib.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "fmt/core.h"
 #include "logging.hpp"
 #include "File.hpp"
 
@@ -18,10 +19,10 @@ static uint32_t quadVao;
 
 static void GlfwErrorCallback(int code, const char *description)
 {
-    fmt::print("<<GLFW>> ({}) {}\n", code, description);
+    printf("<<GLFW>> (%d) %s\n", code, description);
 }
 
-static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GLenum severity, GLsizei length, const char *message, const void *userParam)
+static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GLenum severity, GLsizei /*length*/, const char *message, const void * /*userParam*/)
 {
     const char *sourceText;
     switch (source)
@@ -62,7 +63,7 @@ static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GL
 
     if (message)
     {
-        fmt::print("\n<<GL-{}>> {}: {}: ({}) {}\n", severityText, sourceText, typeText, id, message);
+        printf("\n<<GL-%s>> %s: %s: (%d) %s\n", severityText, sourceText, typeText, id, message);
     }
 }
 
@@ -87,7 +88,7 @@ static uint32_t LoadShader(const char *filename, GLenum shaderType)
     if (!success)
     {
         glGetShaderInfoLog(shader, infoLogSize, nullptr, infoLog);
-        fmt::print("<<Shader compilation error>> {}: {}", filename, infoLog);
+        printf("<<Shader compilation error>> %s: %s", filename, infoLog);
 
         return 0;
     }
@@ -97,6 +98,11 @@ static uint32_t LoadShader(const char *filename, GLenum shaderType)
 
 static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
 {
+    if (!vertShader || !fragShader)
+    {
+        return 0;
+    }
+
     uint32_t program = glCreateProgram();
     glAttachShader(program, vertShader);
     glAttachShader(program, fragShader);
@@ -109,7 +115,7 @@ static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
     if (!success)
     {
         glGetProgramInfoLog(program, infoLogSize, nullptr, infoLog);
-        fmt::print("<<Shader linking error>> {}", infoLog);
+        printf("<<Shader linking error>> %s", infoLog);
 
         return 0;
     }
@@ -131,7 +137,7 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-    window = glfwCreateWindow(1024, 768, "Fördjupningsarbete inom spelutveckling", nullptr, nullptr);
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
 
     if (!window)
     {
