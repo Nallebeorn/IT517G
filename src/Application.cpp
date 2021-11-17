@@ -63,7 +63,12 @@ static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GL
 
     if (message)
     {
-        printf("\n<<GL-%s>> %s: %s: (%d) %s\n", severityText, sourceText, typeText, id, message);
+        const char *color = "";
+        if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM)
+        {
+            color = AC_RED;
+        }
+        printf("\n%s<<GL-%s>> %s: %s: (%d) %s\n" AC_RESET, color, severityText, sourceText, typeText, id, message);
     }
 }
 
@@ -88,7 +93,7 @@ static uint32_t LoadShader(const char *filename, GLenum shaderType)
     if (!success)
     {
         glGetShaderInfoLog(shader, infoLogSize, nullptr, infoLog);
-        printf("<<Shader compilation error>> %s: %s", filename, infoLog);
+        printf(AC_RED "<<Shader compilation error>> %s: " AC_RESET "%s", filename, infoLog);
 
         return 0;
     }
@@ -115,7 +120,7 @@ static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
     if (!success)
     {
         glGetProgramInfoLog(program, infoLogSize, nullptr, infoLog);
-        printf("<<Shader linking error>> %s", infoLog);
+        printf(AC_RED "<<Shader linking error>> " AC_RESET "%s", infoLog);
 
         return 0;
     }
