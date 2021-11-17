@@ -1,4 +1,4 @@
-#include "Application.hpp"
+#include "Motor.hpp"
 #include <windows.h>
 
 void PlatformInit()
@@ -6,7 +6,7 @@ void PlatformInit()
 //    SetConsoleMode()
 }
 
-void Application::ShowError(const char *title, const char *message)
+void Motor::ShowError(const char *title, const char *message)
 {
     MessageBoxA(GetActiveWindow(), message, title, MB_OK | MB_ICONERROR);
 }

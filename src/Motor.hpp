@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Application
+namespace Motor
 {
     void InitAndCreateWindow(int width, int height, const char *title);
     void RunMainLoop();

@@ -1,6 +1,7 @@
-#include "Application.hpp"
+#include "Motor.hpp"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stb_image.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "logging.hpp"
@@ -8,10 +9,10 @@
 
 static const float quadVertices[]
 {
-     0.5f,  0.5f, 0.0f,
-    -0.5f,  0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
+     0.5f,  0.5f, // Top-right
+    -0.5f,  0.5f, // Top-left
+    -0.5f, -0.5f, // Bottom-left
+     0.5f, -0.5f, // Bottom-right
 };
 
 static const uint32_t quadIndices[]
@@ -23,6 +24,7 @@ static const uint32_t quadIndices[]
 static GLFWwindow *window;
 static uint32_t spriteShader;
 static uint32_t quadVao;
+static uint32_t atlasTexture;
 
 void PlatformInit();
 
@@ -137,7 +139,32 @@ static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
     return program;
 }
 
-void Application::InitAndCreateWindow(int width, int height, const char *title)
+static uint32_t LoadTexture(const char *filename)
+{
+    int width, height, numChannels;
+    uint8_t *data = stbi_load(filename, &width, &height, &numChannels, 0);
+    if (!data)
+    {
+        printf("stbi_load failed: %s", stbi_failure_reason());
+        return 0;
+    }
+
+    uint32_t texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    stbi_image_free(data);
+
+    return texture;
+
+}
+
+void Motor::InitAndCreateWindow(int width, int height, const char *title)
 {
     if (!glfwInit())
     {
@@ -157,7 +184,7 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
     {
         const char *errorMessage;
         glfwGetError(&errorMessage);
-        Application::ShowError("OpenGL context creation failed", errorMessage);
+        Motor::ShowError("OpenGL context creation failed", errorMessage);
         exit(1);
     }
 
@@ -172,7 +199,7 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
     if (!File::DoesDirectoryExist("data"))
     {
         LOG("Data directory not found!");
-        Application::ShowError("No data", "\"data\" directory not found in working directory.");
+        Motor::ShowError("No data", "\"data\" directory not found in working directory.");
         exit(1);
     }
 
@@ -186,7 +213,13 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
         exit(1);
     }
 
-    glClearColor(0.5, 0.5, 1.0, 1.0);
+    atlasTexture = LoadTexture("data/nalle.png");
+    if (!atlasTexture)
+    {
+        ShowError("Texture error", "Failed to load texture.");
+        exit(1);
+    }
+
 
     glGenVertexArrays(1, &quadVao);
 
@@ -204,19 +237,26 @@ void Application::InitAndCreateWindow(int width, int height, const char *title)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
+
+    glClearColor(0.5, 0.5, 1.0, 1.0);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glUseProgram(spriteShader);
+    glUniform1i(glGetUniformLocation(spriteShader, "uTexture"), 0);
+    glBindVertexArray(quadVao);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, atlasTexture);
 }
 
-void Application::RunMainLoop()
+void Motor::RunMainLoop()
 {
     while (!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(spriteShader);
-        glBindVertexArray(quadVao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
         glfwSwapBuffers(window);
@@ -226,7 +266,7 @@ void Application::RunMainLoop()
     }
 }
 
-void Application::CleanUp()
+void Motor::CleanUp()
 {
     glfwTerminate();
 }

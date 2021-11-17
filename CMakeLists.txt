@@ -3,7 +3,7 @@ project(IT517G)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCES src/main.cpp src/logging.hpp include/glad/glad.h src/implementations.cpp src/File.cpp src/File.hpp src/Application.cpp src/Application.hpp src/Application_win.cpp)
+set(SOURCES src/main.cpp src/logging.hpp include/glad/glad.h src/implementations.cpp src/File.cpp src/File.hpp src/Motor.cpp src/Motor.hpp src/Motor_win.cpp)
 add_executable(game ${SOURCES})
 
 target_include_directories(game PRIVATE include src)
