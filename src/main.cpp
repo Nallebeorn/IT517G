@@ -1,14 +1,14 @@
 #include <cstdlib>
-#include "Motor.hpp"
+#include "Application.hpp"
 #include "logging.hpp"
 
 int main()
 {
     LOG("Launching IT517G");
 
-    Motor::InitAndCreateWindow(1024, 768, "Fördjupningsarbete i spelutveckling");
-    Motor::RunMainLoop();
-    Motor::CleanUp();
+    Application::InitAndCreateWindow(320, 180, "Fördjupningsarbete i spelutveckling");
+    Application::RunMainLoop();
+    Application::CleanUp();
 
     return 0;
 }
