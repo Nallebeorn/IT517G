@@ -3,6 +3,8 @@ project(IT517G)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Statically link MSVC
+
 set(SOURCES src/main.cpp src/logging.hpp include/glad/glad.h src/implementations.cpp src/File.cpp src/File.hpp src/Application.cpp src/Application.hpp src/Application_win.cpp src/Input.cpp src/Input.hpp src/Rendering.cpp src/Rendering.hpp)
 add_executable(game ${SOURCES})
 

@@ -133,6 +133,7 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
 
     if (!appWindow.glfwWindow)
     {
+
         const char *errorMessage;
         glfwGetError(&errorMessage);
         Application::ShowError("OpenGL context creation failed", errorMessage);
@@ -146,7 +147,7 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
     glfwSetFramebufferSizeCallback(appWindow.glfwWindow, &GlfwFramebufferResizeCallback);
     GlfwFramebufferResizeCallback(appWindow.glfwWindow, appWindow.width, appWindow.height);
 
-    SetFullscreen(true);
+    SetFullscreen(false);
 
     gladLoadGL(glfwGetProcAddress);
 
