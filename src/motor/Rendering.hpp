@@ -1,10 +1,10 @@
 #pragma once
 
-#include <stdint.h>
+#include <motor/typedefs.hpp>
 
 namespace Rendering
 {
-    void Init(uint32_t framebuffer, int width, int height);
+    void Init(s32 width, s32 height);
     void PreUpdate();
     void PostUpdate();
 }

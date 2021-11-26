@@ -1,51 +1,75 @@
 #include "Rendering.hpp"
-#include <stdint.h>
-#include <cstdlib>
-#include "stb_image.h"
-#include "glad/glad.h"
+#include <vector>
+#include "motor/libs/stb_image.h"
+#include "motor/libs/glad.h"
 #include "File.hpp"
 #include "logging.hpp"
 #include "Application.hpp"
+#include "Draw.hpp"
+#include "Mem.hpp"
 
-static const float quadVertices[]
+namespace
+{
+// Vertex attribute locations
+constexpr u32 aVertexPos = 0;
+
+constexpr u32 aObjectPos = 1;
+
+const f32 quadVertices[]
     {
-        0.5f,  0.5f, // Top-right
-        -0.5f,  0.5f, // Top-left
+        0.5f, 0.5f, // Top-right
+        -0.5f, 0.5f, // Top-left
         -0.5f, -0.5f, // Bottom-left
         0.5f, -0.5f, // Bottom-right
     };
 
-static const uint32_t quadIndices[]
+const u32 quadIndices[]
     {
         0, 1, 2,
         2, 3, 0,
     };
 
-static uint32_t spriteShader;
-static uint32_t quadVao;
-static uint32_t atlasTexture;
-static uint32_t targetFramebuffer;
+u32 spriteShader;
 
-static uint32_t LoadShader(const char *filename, GLenum shaderType)
+u32 quadVao;
+
+u32 atlasTexture;
+
+u32 instanceVbo;
+
+struct InstanceData
 {
-    char *text = File::LoadIntoNewBuffer(filename);
+    f32 x;
+    f32 y;
+};
+
+std::vector<InstanceData> drawBuffer;
+
+s32 GetSizeOfInstanceBuffer(u32 numElements)
+{
+    return (s32)numElements * (s32)sizeof(InstanceData);
+}
+
+u32 LoadShader(const char *filename, GLenum shaderType)
+{
+    char *text = File::LoadIntoScratch(filename);
 
     if (!text)
     {
         return 0;
     }
 
-    uint32_t shader = glCreateShader(shaderType);
+    u32 shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, &text, nullptr);
     glCompileShader(shader);
-    free(text);
 
     int success;
-    constexpr int infoLogSize = 1024;
-    char infoLog[infoLogSize];
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success)
     {
+        int infoLogSize;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogSize);
+        auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
         glGetShaderInfoLog(shader, infoLogSize, nullptr, infoLog);
         printf(AC_RED "<<Shader compilation error>> %s: " AC_RESET "%s", filename, infoLog);
 
@@ -55,24 +79,25 @@ static uint32_t LoadShader(const char *filename, GLenum shaderType)
     return shader;
 }
 
-static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
+u32 LinkShaders(u32 vertShader, u32 fragShader)
 {
     if (!vertShader || !fragShader)
     {
         return 0;
     }
 
-    uint32_t program = glCreateProgram();
+    u32 program = glCreateProgram();
     glAttachShader(program, vertShader);
     glAttachShader(program, fragShader);
     glLinkProgram(program);
 
     int success;
-    constexpr int infoLogSize = 1024;
-    char infoLog[infoLogSize];
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success)
     {
+        int infoLogSize;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
+        auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
         glGetProgramInfoLog(program, infoLogSize, nullptr, infoLog);
         printf(AC_RED "<<Shader linking error>> " AC_RESET "%s", infoLog);
 
@@ -82,7 +107,7 @@ static uint32_t LinkShaders(uint32_t vertShader, uint32_t fragShader)
     return program;
 }
 
-static uint32_t LoadTexture(const char *filename)
+u32 LoadTexture(const char *filename)
 {
     int width, height, numChannels;
     uint8_t *data = stbi_load(filename, &width, &height, &numChannels, 0);
@@ -92,7 +117,7 @@ static uint32_t LoadTexture(const char *filename)
         return 0;
     }
 
-    uint32_t texture;
+    u32 texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -106,11 +131,10 @@ static uint32_t LoadTexture(const char *filename)
     return texture;
 
 }
+}
 
-void Rendering::Init(uint32_t framebuffer, int width, int height)
+void Rendering::Init(int width, int height)
 {
-    targetFramebuffer = framebuffer;
-
     spriteShader = LinkShaders(
         LoadShader("data/sprite.vert", GL_VERTEX_SHADER),
         LoadShader("data/sprite.frag", GL_FRAGMENT_SHADER));
@@ -124,49 +148,72 @@ void Rendering::Init(uint32_t framebuffer, int width, int height)
     atlasTexture = LoadTexture("data/nalle.png");
     if (!atlasTexture)
     {
-        Application::ShowError("Texture error", "Failed to load texture.");
+        Application::ShowError("Texture error", "Failed to load texture atlas.");
         exit(1);
     }
 
     glGenVertexArrays(1, &quadVao);
 
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
+    u32 quadStaticVbo;
+    glGenBuffers(1, &quadStaticVbo);
+    glGenBuffers(1, &instanceVbo);
 
-    uint32_t ebo;
-    glGenBuffers(1, &ebo);
+    u32 quadStaticEbo;
+    glGenBuffers(1, &quadStaticEbo);
 
     glBindVertexArray(quadVao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, quadStaticVbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(aVertexPos, 2, GL_FLOAT, false, 2 * sizeof(f32), nullptr);
+    glEnableVertexAttribArray(aVertexPos);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadStaticEbo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
+    drawBuffer.reserve(2048);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
+    glBufferData(GL_ARRAY_BUFFER, GetSizeOfInstanceBuffer(drawBuffer.capacity()), nullptr, GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(aObjectPos, 2, GL_FLOAT, false, 2 * sizeof(f32), nullptr);
+    glVertexAttribDivisor(aObjectPos, 1);
+    glEnableVertexAttribArray(aObjectPos);
 
     glClearColor(0.5, 0.5, 1.0, 1.0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(spriteShader);
+    glUniform2f(glGetUniformLocation(spriteShader, "uViewportSize"), (f32)width, (f32)height);
     glUniform1i(glGetUniformLocation(spriteShader, "uTexture"), 0);
-    glUniform2f(glGetUniformLocation(spriteShader, "uViewportSize"), (float)width, (float)height);
     glBindVertexArray(quadVao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, atlasTexture);
+
 }
 
 void Rendering::PreUpdate()
 {
-
+    drawBuffer.clear();
 }
 
 void Rendering::PostUpdate()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
+    s32 currentGlBufferSize;
+    glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &currentGlBufferSize);
+    if (currentGlBufferSize < GetSizeOfInstanceBuffer(drawBuffer.capacity()))
+    {
+        glBufferData(GL_ARRAY_BUFFER, GetSizeOfInstanceBuffer(drawBuffer.capacity()), nullptr, GL_DYNAMIC_DRAW);
+    }
+
+    glBufferSubData(GL_ARRAY_BUFFER, 0, GetSizeOfInstanceBuffer(drawBuffer.size()), drawBuffer.data());
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, (s32)drawBuffer.size());
+}
+
+void Draw::Sprite(f32 x, f32 y)
+{
+    InstanceData data{};
+    data.x = x;
+    data.y = y;
+    drawBuffer.push_back(data);
 }

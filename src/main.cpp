@@ -1,6 +1,7 @@
 #include <cstdlib>
-#include "Application.hpp"
-#include "logging.hpp"
+#include "motor/Application.hpp"
+#include "motor/logging.hpp"
+#include "motor/Mem.hpp"
 
 int main()
 {

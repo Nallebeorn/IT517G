@@ -1,4 +1,5 @@
-#include <cstdio>
+#include <stdio.h>
+#include "Mem.hpp"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -42,6 +43,32 @@ char *File::LoadIntoNewBuffer(const char *filename, size_t *outLength)
     return buffer;
 }
 
+char *File::LoadIntoScratch(const char *filename, size_t *outLength)
+{
+    FILE *file = fopen(filename, "rb");
+
+    if (!file)
+    {
+        LOG("Couldn't load file %s", filename);
+        return nullptr;
+    }
+
+    long fileLen = GetFileSize(file);
+    size_t bufferSize = fileLen + 1; // Need null terminator at end
+    auto *buffer = (char *)Mem::AllocScratch(bufferSize);
+    fread(buffer, 1, fileLen, file);
+    buffer[bufferSize - 1] = '\0';
+
+    if (outLength)
+    {
+        *outLength = bufferSize;
+    }
+
+    fclose(file);
+
+    return buffer;
+}
+
 #ifdef _WIN32
 
 bool File::DoesDirectoryExist(const char *path)
@@ -55,5 +82,6 @@ bool File::DoesDirectoryExist(const char *path)
 
     return (attributes & FILE_ATTRIBUTE_DIRECTORY);
 }
+
 
 #endif

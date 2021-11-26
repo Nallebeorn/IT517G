@@ -1,47 +1,52 @@
 #include "Application.hpp"
 #include <stdio.h>
 #include <stdlib.h>
-#include "glad/glad.h"
+#include "motor/libs/glad.h"
 #include "GLFW/glfw3.h"
 #include "logging.hpp"
 #include "File.hpp"
 #include "Input.hpp"
 #include "Rendering.hpp"
+#include "Draw.hpp"
+#include "Mem.hpp"
 
-static uint32_t viewportFbo;
-static int viewportWidth;
-static int viewportHeight;
+namespace
+{
+u32 viewportFbo;
+s32 viewportWidth;
+s32 viewportHeight;
 
 struct WindowState
 {
     GLFWwindow *glfwWindow;
-    int width;
-    int height;
-    int blitX;
-    int blitY;
-    int blitWidth;
-    int blitHeight;
+    s32 width;
+    s32 height;
+    s32 blitX;
+    s32 blitY;
+    s32 blitWidth;
+    s32 blitHeight;
+    s32 rememberedWindowedWidth;
+    s32 rememberedWindowedHeight;
+    s32 rememberedWindowedX;
+    s32 rememberedWindowedY;
     bool fullscreen;
-    int rememberedWindowedWidth;
-    int rememberedWindowedHeight;
-    int rememberedWindowedX;
-    int rememberedWindowedY;
 } appWindow;
 
+}
 
 void PlatformInit();
 
-static void GlfwErrorCallback(int code, const char *description)
+static void GlfwErrorCallback(s32 code, const char *description)
 {
     printf("<<GLFW>> (%d) %s\n", code, description);
 }
 
-static void GlfwFramebufferResizeCallback(GLFWwindow *, int width, int height)
+static void GlfwFramebufferResizeCallback(GLFWwindow *, s32 width, s32 height)
 {
     appWindow.width = width;
     appWindow.height = height;
-    float windowAspect = (float)appWindow.width / (float)appWindow.height;
-    float viewportAspect = (float)viewportWidth / (float)viewportHeight;
+    f32 windowAspect = (f32)appWindow.width / (f32)appWindow.height;
+    f32 viewportAspect = (f32)viewportWidth / (f32)viewportHeight;
     if (windowAspect >= viewportAspect)
     {
         appWindow.blitHeight = appWindow.height;
@@ -57,7 +62,7 @@ static void GlfwFramebufferResizeCallback(GLFWwindow *, int width, int height)
     appWindow.blitY = (appWindow.height - appWindow.blitHeight) / 2;
 }
 
-static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GLenum severity, GLsizei /*length*/, const char *message, const void * /*userParam*/)
+static void APIENTRY GlErrorCallback(GLenum source, GLenum type, u32 id, GLenum severity, GLsizei /*length*/, const char *message, const void * /*userParam*/)
 {
     const char *sourceText;
     switch (source)
@@ -107,8 +112,10 @@ static void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32_t id, GL
     }
 }
 
-void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const char *title)
+void Application::InitAndCreateWindow(s32 renderWidth, s32 renderHeight, const char *title)
 {
+    Mem::Init();
+
     if (!glfwInit())
     {
         LOG("GLFW initialization failed");
@@ -121,11 +128,12 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+    glfwWindowHint(GLFW_DOUBLEBUFFER, true);
 
     viewportWidth = renderWidth;
     viewportHeight = renderHeight;
 
-    constexpr int renderScale = 4;
+    constexpr s32 renderScale = 1;
     appWindow.width = renderWidth * renderScale;
     appWindow.height = renderHeight * renderScale;
 
@@ -153,9 +161,11 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDisable(GL_MULTISAMPLE);
     glDebugMessageCallback(GlErrorCallback, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
     glViewport(0, 0, renderWidth, renderHeight);
+    glfwSwapInterval(2);
 
     if (!File::DoesDirectoryExist("data"))
     {
@@ -166,7 +176,7 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
 
     glGenFramebuffers(1, &viewportFbo);
     glBindFramebuffer(GL_FRAMEBUFFER, viewportFbo);
-    uint32_t rbo;
+    u32 rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, renderWidth, renderHeight);
@@ -175,13 +185,21 @@ void Application::InitAndCreateWindow(int renderWidth, int renderHeight, const c
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     Input::Init();
-    Rendering::Init(viewportFbo, renderWidth, renderHeight);
+    Rendering::Init(renderWidth, renderHeight);
+
+    fflush(stdout);
 }
+
+static f32 spritex;
+static f32 spritey;
+static f64 prevFrameTime;
 
 void Application::RunMainLoop()
 {
     while (!glfwWindowShouldClose(appWindow.glfwWindow))
     {
+        Mem::ResetScratch();
+
         glfwPollEvents();
 
         if (Input::WasInputJustPressed(GLFW_KEY_ENTER) && Input::IsInputDown(GLFW_KEY_LEFT_ALT))
@@ -191,6 +209,17 @@ void Application::RunMainLoop()
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewportFbo);
         Rendering::PreUpdate();
+
+        f64 currentTime = glfwGetTime();
+        f32 delta = (f32)(currentTime - prevFrameTime);
+        f32 speed = 1;
+        if (Input::IsInputDown(GLFW_KEY_LEFT)) spritex -= speed;
+        if (Input::IsInputDown(GLFW_KEY_RIGHT)) spritex += speed;
+        if (Input::IsInputDown(GLFW_KEY_UP)) spritey -= speed;
+        if (Input::IsInputDown(GLFW_KEY_DOWN)) spritey += speed;
+
+        Draw::Sprite(200, 50);
+        Draw::Sprite(spritex, spritey);
 
         Rendering::PostUpdate();
         Input::PostUpdate();
@@ -203,13 +232,17 @@ void Application::RunMainLoop()
 
         glfwSwapBuffers(appWindow.glfwWindow);
 
-        fflush(stdout); // Sometimes needed to make sure messages are printed to terminal without waiting for a buffer to be filled
+        prevFrameTime = currentTime;
+
+        LOG("Frame time: %.2fms | FPS: %.0f", delta * 1000.0, 1.0 / delta);
     }
+
 }
 
 void Application::CleanUp()
 {
     glfwTerminate();
+    Mem::PrintScratchStats();
 }
 
 void Application::SetFullscreen(bool fullscreen)
@@ -232,6 +265,8 @@ void Application::SetFullscreen(bool fullscreen)
                              appWindow.rememberedWindowedX, appWindow.rememberedWindowedY,
                              appWindow.rememberedWindowedWidth, appWindow.rememberedWindowedHeight,0);
     }
+
+    glfwSwapInterval(1);
 }
 
 GLFWwindow *Application::GetWindow()
