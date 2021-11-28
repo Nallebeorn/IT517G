@@ -1,16 +1,22 @@
 #include "Mem.hpp"
 #include "logging.hpp"
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstddef>
 #include <assert.h>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
 
 static Mem::Arena scratchArena;
 
+static bool isInitialized;
+
 void Mem::Init()
 {
-    scratchArena.Initialize(32 * 1024 * 1024);
+    if (!isInitialized)
+    {
+        scratchArena.Initialize(32 * 1024 * 1024);
+        isInitialized = true;
+    }
 }
 
 void Mem::Arena::Initialize(size_t size)
@@ -19,7 +25,7 @@ void Mem::Arena::Initialize(size_t size)
 
     if (buffer == nullptr)
     {
-        printf("Memory arena initialization of %d bytes failed.", size);
+        printf("Memory arena initialization of %zu bytes failed.", size);
         abort();
     }
 
@@ -39,7 +45,7 @@ void *Mem::Arena::Allocate(size_t size)
 
     if (cursor >= buffer + capacity)
     {
-        printf("Arena buffer overflow when allocating %d bytes!", size);
+        printf("Arena buffer overflow when allocating %zu bytes!", size);
         abort();
     }
 
@@ -91,7 +97,7 @@ void Mem::ResetScratch()
 
 void Mem::PrintScratchStats()
 {
-    printf("Scratch memory arena peak usage: %d/%d bytes (%.2f/%.2fMiB) = %.1f%%",
+    printf("Scratch memory arena peak usage: %zu/%zu bytes (%.2f/%.2fMiB) = %.1f%%",
            scratchArena.GetPeakSize(), scratchArena.GetCapacity(),
            scratchArena.GetPeakSize() / (1024.0 * 1024.0), scratchArena.GetCapacity() / (1024.0 * 1024.0),
            (double)scratchArena.GetPeakSize() / (double)scratchArena.GetCapacity());

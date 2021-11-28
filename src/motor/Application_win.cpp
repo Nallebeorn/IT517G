@@ -3,7 +3,7 @@
 
 void PlatformInit()
 {
-//    SetConsoleMode()
+    //    SetConsoleMode()
 }
 
 void Application::ShowError(const char *title, const char *message)

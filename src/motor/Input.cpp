@@ -1,12 +1,12 @@
 #include "Input.hpp"
-#include <assert.h>
-#include "GLFW/glfw3.h"
 #include "Application.hpp"
+#include "GLFW/glfw3.h"
 #include "logging.hpp"
+#include <assert.h>
 
-static constexpr uint32_t KEY_PRESSED_MASK = 0x01;
+static constexpr uint32_t KEY_PRESSED_MASK  = 0x01;
 static constexpr uint32_t KEY_RELEASED_MASK = 0x02;
-static constexpr uint32_t KEY_HELD_MASK = 0x04;
+static constexpr uint32_t KEY_HELD_MASK     = 0x04;
 
 static uint32_t inputState[GLFW_KEY_LAST + 1];
 
@@ -15,6 +15,7 @@ static void GlfwKeyCallback(GLFWwindow *window, int key, int scancode, int actio
     if (key < 0 || key > GLFW_KEY_LAST)
     {
         LOG("Key %d is out of bounds", key);
+        return;
     }
 
     switch (action)

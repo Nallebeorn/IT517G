@@ -1,136 +1,133 @@
 #include "Rendering.hpp"
 #include <vector>
-#include "motor/libs/stb_image.h"
-#include "motor/libs/glad.h"
-#include "File.hpp"
-#include "logging.hpp"
 #include "Application.hpp"
 #include "Draw.hpp"
+#include "File.hpp"
 #include "Mem.hpp"
+#include "logging.hpp"
+#include "motor/libs/glad.h"
+#include "motor/libs/stb_image.h"
 
 namespace
 {
-// Vertex attribute locations
-constexpr u32 aVertexPos = 0;
+    // Vertex attribute locations
+    constexpr u32 aVertexPos = 0;
 
-constexpr u32 aObjectPos = 1;
+    constexpr u32 aObjectPos = 1;
 
-const f32 quadVertices[]
-    {
-        0.5f, 0.5f, // Top-right
-        -0.5f, 0.5f, // Top-left
+    const f32 quadVertices[] {
+        0.5f, 0.5f,   // Top-right
+        -0.5f, 0.5f,  // Top-left
         -0.5f, -0.5f, // Bottom-left
-        0.5f, -0.5f, // Bottom-right
+        0.5f, -0.5f,  // Bottom-right
     };
 
-const u32 quadIndices[]
-    {
+    const u32 quadIndices[] {
         0, 1, 2,
-        2, 3, 0,
+        2, 3, 0
     };
 
-u32 spriteShader;
+    u32 spriteShader;
 
-u32 quadVao;
+    u32 quadVao;
 
-u32 atlasTexture;
+    u32 atlasTexture;
 
-u32 instanceVbo;
+    u32 instanceVbo;
 
-struct InstanceData
-{
-    f32 x;
-    f32 y;
-};
-
-std::vector<InstanceData> drawBuffer;
-
-s32 GetSizeOfInstanceBuffer(u32 numElements)
-{
-    return (s32)numElements * (s32)sizeof(InstanceData);
-}
-
-u32 LoadShader(const char *filename, GLenum shaderType)
-{
-    char *text = File::LoadIntoScratch(filename);
-
-    if (!text)
+    struct InstanceData
     {
-        return 0;
+        f32 x;
+        f32 y;
+    };
+
+    std::vector<InstanceData> drawBuffer;
+
+    s32 GetSizeOfInstanceBuffer(u32 numElements)
+    {
+        return (s32)numElements * (s32)sizeof(InstanceData);
     }
 
-    u32 shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, &text, nullptr);
-    glCompileShader(shader);
-
-    int success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
+    u32 LoadShader(const char *filename, GLenum shaderType)
     {
-        int infoLogSize;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogSize);
-        auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
-        glGetShaderInfoLog(shader, infoLogSize, nullptr, infoLog);
-        printf(AC_RED "<<Shader compilation error>> %s: " AC_RESET "%s", filename, infoLog);
+        char *text = File::LoadIntoScratch(filename);
 
-        return 0;
+        if (!text)
+        {
+            return 0;
+        }
+
+        u32 shader = glCreateShader(shaderType);
+        glShaderSource(shader, 1, &text, nullptr);
+        glCompileShader(shader);
+
+        int success;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            int infoLogSize;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogSize);
+            auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
+            glGetShaderInfoLog(shader, infoLogSize, nullptr, infoLog);
+            printf(AC_RED "<<Shader compilation error>> %s: " AC_RESET "%s", filename, infoLog);
+
+            return 0;
+        }
+
+        return shader;
     }
 
-    return shader;
-}
-
-u32 LinkShaders(u32 vertShader, u32 fragShader)
-{
-    if (!vertShader || !fragShader)
+    u32 LinkShaders(u32 vertShader, u32 fragShader)
     {
-        return 0;
+        if (!vertShader || !fragShader)
+        {
+            return 0;
+        }
+
+        u32 program = glCreateProgram();
+        glAttachShader(program, vertShader);
+        glAttachShader(program, fragShader);
+        glLinkProgram(program);
+
+        int success;
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            int infoLogSize;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
+            auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
+            glGetProgramInfoLog(program, infoLogSize, nullptr, infoLog);
+            printf(AC_RED "<<Shader linking error>> " AC_RESET "%s", infoLog);
+
+            return 0;
+        }
+
+        return program;
     }
 
-    u32 program = glCreateProgram();
-    glAttachShader(program, vertShader);
-    glAttachShader(program, fragShader);
-    glLinkProgram(program);
-
-    int success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if (!success)
+    u32 LoadTexture(const char *filename)
     {
-        int infoLogSize;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
-        auto infoLog = (char *)Mem::AllocScratch(infoLogSize);
-        glGetProgramInfoLog(program, infoLogSize, nullptr, infoLog);
-        printf(AC_RED "<<Shader linking error>> " AC_RESET "%s", infoLog);
+        int width, height, numChannels;
+        uint8_t *data = stbi_load(filename, &width, &height, &numChannels, 0);
+        if (!data)
+        {
+            printf("stbi_load failed: %s", stbi_failure_reason());
+            return 0;
+        }
 
-        return 0;
+        u32 texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+        stbi_image_free(data);
+
+        return texture;
     }
-
-    return program;
-}
-
-u32 LoadTexture(const char *filename)
-{
-    int width, height, numChannels;
-    uint8_t *data = stbi_load(filename, &width, &height, &numChannels, 0);
-    if (!data)
-    {
-        printf("stbi_load failed: %s", stbi_failure_reason());
-        return 0;
-    }
-
-    u32 texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    stbi_image_free(data);
-
-    return texture;
-
-}
 }
 
 void Rendering::Init(int width, int height)
@@ -187,7 +184,6 @@ void Rendering::Init(int width, int height)
     glBindVertexArray(quadVao);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, atlasTexture);
-
 }
 
 void Rendering::PreUpdate()
@@ -212,7 +208,7 @@ void Rendering::PostUpdate()
 
 void Draw::Sprite(f32 x, f32 y)
 {
-    InstanceData data{};
+    InstanceData data {};
     data.x = x;
     data.y = y;
     drawBuffer.push_back(data);

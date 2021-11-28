@@ -1,12 +1,12 @@
+#include "File.hpp"
+
 #include <stdio.h>
 #include "Mem.hpp"
+#include "logging.hpp"
 
 #ifdef _WIN32
-#include <windows.h>
-
+    #include <windows.h>
 #endif
-#include "File.hpp"
-#include "logging.hpp"
 
 static long GetFileSize(std::FILE *file)
 {
@@ -27,11 +27,15 @@ char *File::LoadIntoNewBuffer(const char *filename, size_t *outLength)
         return nullptr;
     }
 
-    long fileLen = GetFileSize(file);
+    size_t fileLen    = GetFileSize(file);
     size_t bufferSize = fileLen + 1; // Need null terminator at end
-    char *buffer = (char *)malloc(bufferSize);
-    fread(buffer, 1, fileLen, file);
-    buffer[bufferSize - 1] = '\0';
+    char *buffer      = (char *)malloc(bufferSize);
+
+    if (buffer)
+    {
+        fread(buffer, 1, fileLen, file);
+        buffer[bufferSize - 1] = '\0';
+    }
 
     if (outLength)
     {
@@ -53,9 +57,9 @@ char *File::LoadIntoScratch(const char *filename, size_t *outLength)
         return nullptr;
     }
 
-    long fileLen = GetFileSize(file);
+    size_t fileLen    = GetFileSize(file);
     size_t bufferSize = fileLen + 1; // Need null terminator at end
-    auto *buffer = (char *)Mem::AllocScratch(bufferSize);
+    auto *buffer      = (char *)Mem::AllocScratch(bufferSize);
     fread(buffer, 1, fileLen, file);
     buffer[bufferSize - 1] = '\0';
 
@@ -83,5 +87,12 @@ bool File::DoesDirectoryExist(const char *path)
     return (attributes & FILE_ATTRIBUTE_DIRECTORY);
 }
 
+char *File::GetWorkingDirectory()
+{
+    DWORD length = GetCurrentDirectoryA(0, nullptr);
+    auto buffer  = (char *)Mem::AllocScratch(length);
+    GetCurrentDirectoryA(length, buffer);
+    return buffer;
+}
 
 #endif

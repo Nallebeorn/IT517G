@@ -5,14 +5,18 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Statically link MSVC
 
-set(SOURCES src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp src/motor/Rendering.cpp src/motor/Rendering.hpp src/motor/Draw.hpp src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp)
-add_executable(game ${SOURCES})
+add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp src/motor/Rendering.cpp src/motor/Rendering.hpp src/motor/Draw.hpp src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp )
 
 target_include_directories(game PRIVATE include src)
 
 set(game PRIVATE WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
-
+set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 set_property(TARGET game PROPERTY RULE_LAUNCH_COMPILE  "\"${CMAKE_COMMAND}\" -E time") # Print elapsed time when compiling
+
+if (MSVC AND CONFIG:Debug)
+	target_compile_options(game PRIVATE "/ZI")
+	target_link_options(game PRIVATE "/ZI" "/INCREMENTAL")
+endif()
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
