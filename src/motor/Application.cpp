@@ -43,23 +43,23 @@ static void GlfwErrorCallback(s32 code, const char *description)
 
 static void GlfwFramebufferResizeCallback(GLFWwindow *window, s32 width, s32 height)
 {
-    appWindow.width    = width;
-    appWindow.height   = height;
-    f32 windowAspect   = (f32)appWindow.width / (f32)appWindow.height;
+    appWindow.width = width;
+    appWindow.height = height;
+    f32 windowAspect = (f32)appWindow.width / (f32)appWindow.height;
     f32 viewportAspect = (f32)viewportWidth / (f32)viewportHeight;
     if (windowAspect >= viewportAspect)
     {
         appWindow.blitHeight = appWindow.height;
-        appWindow.blitWidth  = (appWindow.blitHeight * viewportWidth) / viewportHeight;
+        appWindow.blitWidth = (appWindow.blitHeight * viewportWidth) / viewportHeight;
     }
     else
     {
-        appWindow.blitWidth  = appWindow.width;
+        appWindow.blitWidth = appWindow.width;
         appWindow.blitHeight = (appWindow.blitWidth * viewportHeight) / viewportWidth;
     }
 
-    appWindow.blitX      = (appWindow.width - appWindow.blitWidth) / 2;
-    appWindow.blitY      = (appWindow.height - appWindow.blitHeight) / 2;
+    appWindow.blitX = (appWindow.width - appWindow.blitWidth) / 2;
+    appWindow.blitY = (appWindow.height - appWindow.blitHeight) / 2;
     GLFWmonitor *monitor = glfwGetWindowMonitor(window);
     LOG("New monitor: %s", monitor ? glfwGetMonitorName(monitor) : "<none>");
 }
@@ -132,12 +132,12 @@ void Application::InitAndCreateWindow(s32 renderWidth, s32 renderHeight, const c
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
     glfwWindowHint(GLFW_DOUBLEBUFFER, true);
 
-    viewportWidth  = renderWidth;
+    viewportWidth = renderWidth;
     viewportHeight = renderHeight;
 
-    constexpr s32 renderScale = 1;
-    appWindow.width           = renderWidth * renderScale;
-    appWindow.height          = renderHeight * renderScale;
+    constexpr s32 renderScale = 3;
+    appWindow.width = renderWidth * renderScale;
+    appWindow.height = renderHeight * renderScale;
 
     appWindow.glfwWindow = glfwCreateWindow(appWindow.width, appWindow.height, title, nullptr, nullptr);
 
@@ -213,8 +213,8 @@ void Application::RunMainLoop()
         Rendering::PreUpdate();
 
         f64 currentTime = glfwGetTime();
-        f32 delta       = (f32)(currentTime - prevFrameTime);
-        f32 speed       = 10;
+        f32 delta = (f32)(currentTime - prevFrameTime);
+        f32 speed = 2;
         if (Input::IsInputDown(GLFW_KEY_LEFT)) spritex -= speed;
         if (Input::IsInputDown(GLFW_KEY_RIGHT)) spritex += speed;
         if (Input::IsInputDown(GLFW_KEY_UP)) spritey -= speed;
@@ -248,12 +248,12 @@ void Application::SetFullscreen(bool fullscreen)
 {
     if (fullscreen && !appWindow.fullscreen)
     {
-        appWindow.fullscreen               = true;
-        appWindow.rememberedWindowedWidth  = appWindow.width;
+        appWindow.fullscreen = true;
+        appWindow.rememberedWindowedWidth = appWindow.width;
         appWindow.rememberedWindowedHeight = appWindow.height;
         glfwGetWindowPos(appWindow.glfwWindow, &appWindow.rememberedWindowedX, &appWindow.rememberedWindowedY);
 
-        GLFWmonitor *monitor    = glfwGetPrimaryMonitor();
+        GLFWmonitor *monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode *mode = glfwGetVideoMode(monitor);
         glfwSetWindowMonitor(appWindow.glfwWindow, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
     }

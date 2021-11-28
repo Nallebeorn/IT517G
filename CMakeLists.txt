@@ -13,7 +13,7 @@ set(game PRIVATE WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 set_property(TARGET game PROPERTY RULE_LAUNCH_COMPILE  "\"${CMAKE_COMMAND}\" -E time") # Print elapsed time when compiling
 
-if (MSVC AND CONFIG:Debug)
+if (MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
 	target_compile_options(game PRIVATE "/ZI")
 	target_link_options(game PRIVATE "/ZI" "/INCREMENTAL")
 endif()
