@@ -17,4 +17,4 @@
 //Reset
 #define AC_RESET "\x1b[0m"
 
-#define LOG(formatstr, ...) std::printf("[%7.3f] %s:%d: " formatstr "\n" AC_RESET, glfwGetTime(), ((const char *)__FILE__ + 3), __LINE__, ##__VA_ARGS__)
+#define LOG(formatstr, ...) std::printf(("[%7.3f] %s:%d: " formatstr "\n" AC_RESET), glfwGetTime(), ((const char *)__FILE__ + SOURCE_PATH_LENGTH), __LINE__, ##__VA_ARGS__)

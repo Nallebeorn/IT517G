@@ -14,11 +14,12 @@ void main()
     vTexCoord.y = 1.0 - vTexCoord.y;
     vTexCoord = clamp(vTexCoord, 0.0, 1.0);
 
-    // Input position is pixel-coordinates (0,0) at top-left, convert to clip-space
+    // Input position is pixel-coordinates with (0,0) as top-left.
+    // This is converted to clip space.
     vec2 pos = aVertexPos;
     pos = pos * 16;
     pos = pos + vec2(aObjectPos.x, -aObjectPos.y);
-    pos = round(pos);
+    pos = floor(pos);
     pos = pos / (uViewportSize * 0.5);
     pos.x -= 1.0;
     pos.y += 1.0;

@@ -5,13 +5,17 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Statically link MSVC
 
-add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp src/motor/Rendering.cpp src/motor/Rendering.hpp src/motor/Draw.hpp src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp )
+add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp src/motor/Rendering.cpp src/motor/Rendering.hpp src/motor/Draw.hpp src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp  "src/motor/Time.hpp" "src/motor/Entity.hpp" "src/game/Player.hpp" "src/game/Player.cpp" "src/motor/Math.hpp")
 
-target_include_directories(game PRIVATE include src)
+target_include_directories(game PRIVATE src)
 
 set(game PRIVATE WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 set_property(TARGET game PROPERTY RULE_LAUNCH_COMPILE  "\"${CMAKE_COMMAND}\" -E time") # Print elapsed time when compiling
+
+# This makes it possible for logging function to print relative filename
+string(LENGTH "${CMAKE_SOURCE_DIR}/" SOURCE_PATH_LENGTH)
+target_compile_definitions(game PRIVATE "-DSOURCE_PATH_LENGTH=${SOURCE_PATH_LENGTH}")
 
 if (MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
 	target_compile_options(game PRIVATE "/ZI")

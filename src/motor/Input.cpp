@@ -64,3 +64,8 @@ void Input::PostUpdate()
         inputState[i] &= ~(KEY_PRESSED_MASK | KEY_RELEASED_MASK);
     }
 }
+
+void Input::ClearInputState(int input)
+{
+    inputState[input] &= ~(KEY_PRESSED_MASK | KEY_RELEASED_MASK);
+}

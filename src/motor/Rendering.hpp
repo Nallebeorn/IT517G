@@ -4,7 +4,7 @@
 
 namespace Rendering
 {
-    void Init(s32 width, s32 height);
+    void Init(int32 width, int32 height);
     void PreUpdate();
     void PostUpdate();
 }

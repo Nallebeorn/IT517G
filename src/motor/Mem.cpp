@@ -21,7 +21,7 @@ void Mem::Init()
 
 void Mem::Arena::Initialize(size_t size)
 {
-    buffer = (u8 *)calloc(size, 1);
+    buffer = (uint8 *)calloc(size, 1);
 
     if (buffer == nullptr)
     {
@@ -41,7 +41,7 @@ void *Mem::Arena::Allocate(size_t size)
     constexpr size_t alignment = alignof(std::max_align_t);
     void *returnPtr = cursor;
     returnPtr = Mem::AlignUp(returnPtr, alignment);
-    cursor = (u8 *)returnPtr + size;
+    cursor = (uint8 *)returnPtr + size;
 
     if (cursor >= buffer + capacity)
     {

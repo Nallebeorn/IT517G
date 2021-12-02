@@ -16,10 +16,10 @@ namespace Mem
         size_t GetCapacity() const;
 
       private:
-        u8 *buffer;
-        u8 *cursor;
+        uint8 *buffer;
+        uint8 *cursor;
         size_t capacity;
-        u8 *maxCursor;
+        uint8 *maxCursor;
     };
 
     void Init();
