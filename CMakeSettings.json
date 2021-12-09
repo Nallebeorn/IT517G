@@ -9,7 +9,14 @@
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "variables": [
+        {
+          "name": "ASEPRITE_EXECUTABLE",
+          "value": "B:\\Program\\Steam\\steamapps\\common\\Aseprite\\Aseprite.exe",
+          "type": "FILEPATH"
+        }
+      ]
     },
     {
       "name": "x64-RelWithDebInfo",
@@ -20,7 +27,14 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x64_x64" ]
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "ASEPRITE_EXECUTABLE",
+          "value": "B:\\Program\\Steam\\steamapps\\common\\Aseprite\\Aseprite.exe",
+          "type": "FILEPATH"
+        }
+      ]
     },
     {
       "name": "x64-Release",
@@ -32,7 +46,13 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "variables": []
+      "variables": [
+        {
+          "name": "ASEPRITE_EXECUTABLE",
+          "value": "B:\\Program\\Steam\\steamapps\\common\\Aseprite\\Aseprite.exe",
+          "type": "FILEPATH"
+        }
+      ]
     }
   ]
 }

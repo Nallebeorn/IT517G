@@ -1,5 +1,6 @@
 #include "File.hpp"
 
+#include <cstring>
 #include <stdio.h>
 #include "Mem.hpp"
 #include "logging.hpp"
@@ -93,6 +94,26 @@ char *File::GetWorkingDirectory()
     auto buffer  = (char *)Mem::AllocScratch(length);
     GetCurrentDirectoryA(length, buffer);
     return buffer;
+}
+
+char *File::ReplaceFilename(const char *sourcePath, const char *newFilename)
+{
+    size_t newFilenameLen = std::strlen(newFilename);
+    size_t length = std::strlen(sourcePath) + newFilenameLen + 1; // +1 for path separator (/)
+    char *outString = (char *)Mem::AllocScratch(length + 1); // +1 for null terminator
+    const char *lastSlash = std::strrchr(sourcePath, '/');
+    if (lastSlash == nullptr)
+    {
+        return (char *)newFilename;
+    }
+    size_t directoryLength = lastSlash - sourcePath;
+    std::strncpy(outString, sourcePath, directoryLength);
+    outString[directoryLength] = '/';
+    std::strncpy(outString + directoryLength + 1, newFilename, newFilenameLen);
+
+    LOG("Turned path %s into %s", sourcePath, outString);
+
+    return outString;
 }
 
 #endif

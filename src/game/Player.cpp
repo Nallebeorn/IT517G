@@ -55,7 +55,7 @@ void Player::Update()
         }
     }
 
-    Draw::Sprite(displayX, displayY);
+    Draw::Sprite("Nalle.Fire#000", displayX, displayY);
 }
 
 void Player::MoveX(float amount)

@@ -5,5 +5,5 @@
 // Implementations are in Rendering.cpp
 namespace Draw
 {
-    void Sprite(int32 x, int32 y);
+    void Sprite(const char *sprite, int32 x, int32 y);
 }

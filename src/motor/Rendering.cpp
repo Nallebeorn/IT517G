@@ -1,5 +1,9 @@
 #include "Rendering.hpp"
 #include <math.h>
+#include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#include <string>
+#include <unordered_map>
 #include <vector>
 #include "Application.hpp"
 #include "Draw.hpp"
@@ -13,8 +17,8 @@ namespace
 {
     // Vertex attribute locations
     constexpr uint32 aVertexPos = 0;
-
     constexpr uint32 aObjectPos = 1;
+    constexpr uint32 aSpriteRect = 2;
 
     const float quadVertices[] {
         0.5f, 0.5f,   // Top-right
@@ -29,10 +33,24 @@ namespace
     };
 
     uint32 spriteShader;
-
     uint32 quadVao;
 
-    uint32 atlasTexture;
+    struct Sprite
+    {
+        int32 x;
+        int32 y;
+        int32 width;
+        int32 height;
+        int32 duration;
+    };
+
+    struct SpriteAtlas
+    {
+        std::unordered_map<std::string, Sprite> data;
+        int32 width;
+        int32 height;
+        uint32 texture;
+    } spriteAtlas;
 
     uint32 instanceVbo;
 
@@ -40,6 +58,10 @@ namespace
     {
         float x;
         float y;
+        float atlasX;
+        float atlasY;
+        float width;
+        float height;
     };
 
     std::vector<InstanceData> drawBuffer;
@@ -106,7 +128,7 @@ namespace
         return program;
     }
 
-    uint32 LoadTexture(const char *filename)
+    uint32 LoadTexture(const char *filename, int32 *outWidth = nullptr, int32 *outHeight = nullptr)
     {
         int width, height, numChannels;
         uint8_t *data = stbi_load(filename, &width, &height, &numChannels, 0);
@@ -127,7 +149,46 @@ namespace
 
         stbi_image_free(data);
 
+        if (outWidth) *outWidth = width;
+        if (outHeight) *outHeight = height;
+
         return texture;
+    }
+
+    void LoadAtlas(const char *jsonFilename, SpriteAtlas *outAtlas)
+    {
+        outAtlas->texture = 0;
+        outAtlas->data.clear();
+
+        rapidjson::Document doc;
+
+        char *jsonText = File::LoadIntoScratch(jsonFilename);
+        doc.ParseInsitu(jsonText);
+        if (doc.HasParseError())
+        {
+            LOG("JSON parse error @%zu: %s", doc.GetErrorOffset(), rapidjson::GetParseError_En(doc.GetParseError()));
+        }
+
+        const char *textureRelativeFilename = doc["meta"]["image"].GetString();
+        const char *textureFilename = File::ReplaceFilename(jsonFilename, textureRelativeFilename);
+        outAtlas->texture = LoadTexture(textureFilename, &outAtlas->width, &outAtlas->height);
+
+        for (auto &frame : doc["frames"].GetArray())
+        {
+            Sprite sprite;
+
+            const char *name = frame["filename"].GetString();
+
+            auto rect = frame["frame"].GetObject();
+            sprite.x = rect["x"].GetInt();
+            sprite.y = rect["y"].GetInt();
+            sprite.width = rect["w"].GetInt();
+            sprite.height = rect["h"].GetInt();
+
+            sprite.duration = frame["duration"].GetInt();
+
+            outAtlas->data[std::string(name)] = sprite;
+        }
     }
 }
 
@@ -143,12 +204,7 @@ void Rendering::Init(int width, int height)
         exit(1);
     }
 
-    atlasTexture = LoadTexture("data/nalle.png");
-    if (!atlasTexture)
-    {
-        Application::ShowError("Texture error", "Failed to load texture atlas.");
-        exit(1);
-    }
+    LoadAtlas("data/atlas.json", &spriteAtlas);
 
     glGenVertexArrays(1, &quadVao);
 
@@ -172,9 +228,14 @@ void Rendering::Init(int width, int height)
     drawBuffer.reserve(2048);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
     glBufferData(GL_ARRAY_BUFFER, GetSizeOfInstanceBuffer(drawBuffer.capacity()), nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(aObjectPos, 2, GL_FLOAT, false, 2 * sizeof(float), nullptr);
+
+    glVertexAttribPointer(aObjectPos, 2, GL_FLOAT, false, sizeof(InstanceData), nullptr);
     glVertexAttribDivisor(aObjectPos, 1);
     glEnableVertexAttribArray(aObjectPos);
+
+    glVertexAttribPointer(aSpriteRect, 4, GL_FLOAT, false, sizeof(InstanceData), (void *)offsetof(InstanceData, atlasX));
+    glVertexAttribDivisor(aSpriteRect, 1);
+    glEnableVertexAttribArray(aSpriteRect);
 
     glClearColor(1.0, 1.0, 0.94, 1.0);
     glEnable(GL_BLEND);
@@ -182,9 +243,10 @@ void Rendering::Init(int width, int height)
     glUseProgram(spriteShader);
     glUniform2f(glGetUniformLocation(spriteShader, "uViewportSize"), (float)width, (float)height);
     glUniform1i(glGetUniformLocation(spriteShader, "uTexture"), 0);
+    glUniform2f(glGetUniformLocation(spriteShader, "uAtlasSize"), (float)spriteAtlas.width, (float)spriteAtlas.height);
     glBindVertexArray(quadVao);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, atlasTexture);
+    glBindTexture(GL_TEXTURE_2D, spriteAtlas.texture);
 }
 
 void Rendering::PreUpdate()
@@ -207,10 +269,32 @@ void Rendering::PostUpdate()
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, (int32)drawBuffer.size());
 }
 
-void Draw::Sprite(int32 x, int32 y)
+void Draw::Sprite(const char *sprite, int32 x, int32 y)
 {
     InstanceData data {};
+
     data.x = (float)x;
     data.y = (float)y;
+
+    if (spriteAtlas.data.count(sprite) > 0)
+    {
+        ::Sprite &spriteInfo = spriteAtlas.data.at(sprite);
+
+        data.atlasX = spriteInfo.x;
+        data.atlasY = spriteInfo.y;
+        data.width = spriteInfo.width;
+        data.height = spriteInfo.height;
+    }
+    else
+    {
+        LOG(AC_RED "No sprite named %s", sprite);
+
+        data.atlasX = 0;
+        data.atlasY = 0;
+        data.width = 16;
+        data.height = 16;
+    }
+
+    
     drawBuffer.push_back(data);
 }

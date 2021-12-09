@@ -1,0 +1,119 @@
+{ "frames": [
+   {
+    "filename": "Nalle.Idle#000",
+    "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 300
+   },
+   {
+    "filename": "Nalle.Idle#001",
+    "frame": { "x": 22, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 300
+   },
+   {
+    "filename": "Nalle.Idle#002",
+    "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 300
+   },
+   {
+    "filename": "Nalle.Idle#003",
+    "frame": { "x": 44, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 300
+   },
+   {
+    "filename": "Nalle.Fire#000",
+    "frame": { "x": 66, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 100
+   },
+   {
+    "filename": "Nalle.Fire#001",
+    "frame": { "x": 88, "y": 0, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 100
+   },
+   {
+    "filename": "Player.Idle#000",
+    "frame": { "x": 110, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 400
+   },
+   {
+    "filename": "Player.Idle#001",
+    "frame": { "x": 126, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 200
+   },
+   {
+    "filename": "Player.Idle#002",
+    "frame": { "x": 142, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 200
+   },
+   {
+    "filename": "Player.Idle#003",
+    "frame": { "x": 158, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 400
+   },
+   {
+    "filename": "Player.Idle#004",
+    "frame": { "x": 174, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 200
+   },
+   {
+    "filename": "Player.Idle#005",
+    "frame": { "x": 110, "y": 0, "w": 16, "h": 16 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
+    "sourceSize": { "w": 16, "h": 16 },
+    "duration": 400
+   }
+ ],
+ "meta": {
+  "app": "https://www.aseprite.org/",
+  "version": "1.2.30-x64",
+  "image": "atlas.png",
+  "format": "RGBA8888",
+  "size": { "w": 1024, "h": 1024 },
+  "scale": "1"
+ }
+}

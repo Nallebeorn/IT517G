@@ -1,4 +1,5 @@
 #include "Application.hpp"
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cmath>
 #include <stdio.h>
@@ -7,7 +8,6 @@
 #include "Draw.hpp"
 #include "Entity.hpp"
 #include "File.hpp"
-#include "GLFW/glfw3.h"
 #include "Input.hpp"
 #include "Mem.hpp"
 #include "Rendering.hpp"
@@ -40,7 +40,7 @@ namespace
     double deltaTime;
     double currentTime;
 
-    std::vector<Entity *> updateList;
+    std::vector<Entity *> entityList;
 
     void GlfwErrorCallback(int32 code, const char *description)
     {
@@ -154,7 +154,7 @@ namespace
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewportFbo);
         Rendering::PreUpdate();
 
-        for (Entity *entity : updateList)
+        for (Entity *entity : entityList)
         {
             if (entity->enabled)
             {
@@ -162,7 +162,7 @@ namespace
             }
         }
 
-        Draw::Sprite(200, 50);
+        Draw::Sprite("Nalle.Idle#001", 200, 50);
 
         Input::PostUpdate();
     }
@@ -247,7 +247,7 @@ void Application::InitAndCreateWindow(int32 renderWidth, int32 renderHeight, con
     Input::Init();
     Rendering::Init(renderWidth, renderHeight);
 
-    updateList.reserve(256);
+    entityList.reserve(256);
 
     fflush(stdout);
 }
@@ -343,7 +343,7 @@ GLFWwindow *Application::GetWindow()
 
 void Application::AddEntity(Entity *entity)
 {
-    updateList.push_back(entity);
+    entityList.push_back(entity);
 }
 
 double Time::AtFrameBegin()

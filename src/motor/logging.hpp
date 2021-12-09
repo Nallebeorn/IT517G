@@ -1,7 +1,7 @@
 #pragma once
+#include <GLFW/glfw3.h>
 #include <cstdio>
 #include <ctime>
-#include "GLFW/glfw3.h"
 
 // AC - ANSI Colors
 // Regular text

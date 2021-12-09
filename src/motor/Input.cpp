@@ -1,7 +1,7 @@
 #include "Input.hpp"
+#include <GLFW/glfw3.h>
 #include <assert.h>
 #include "Application.hpp"
-#include "GLFW/glfw3.h"
 #include "logging.hpp"
 
 static constexpr uint32_t KEY_PRESSED_MASK = 0x01;
