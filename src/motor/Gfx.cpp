@@ -1,4 +1,4 @@
-#include "Rendering.hpp"
+#include "Gfx.hpp"
 #include <math.h>
 #include <rapidjson/document.h>
 #include <rapidjson/error/en.h>
@@ -6,12 +6,13 @@
 #include <unordered_map>
 #include <vector>
 #include "Application.hpp"
-#include "Draw.hpp"
 #include "File.hpp"
 #include "Mem.hpp"
 #include "logging.hpp"
 #include "motor/libs/glad.h"
 #include "motor/libs/stb_image.h"
+
+using Gfx::Sprite;
 
 namespace
 {
@@ -35,22 +36,13 @@ namespace
     uint32 spriteShader;
     uint32 quadVao;
 
-    struct Sprite
-    {
-        int32 x;
-        int32 y;
-        int32 width;
-        int32 height;
-        int32 duration;
-    };
-
     struct SpriteAtlas
     {
         std::unordered_map<std::string, Sprite> data;
         int32 width;
         int32 height;
         uint32 texture;
-    } spriteAtlas;
+    } spriteAtlas {};
 
     uint32 instanceVbo;
 
@@ -111,6 +103,9 @@ namespace
         glAttachShader(program, vertShader);
         glAttachShader(program, fragShader);
         glLinkProgram(program);
+
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
 
         int success;
         glGetProgramiv(program, GL_LINK_STATUS, &success);
@@ -173,11 +168,17 @@ namespace
         const char *textureFilename = File::ReplaceFilename(jsonFilename, textureRelativeFilename);
         outAtlas->texture = LoadTexture(textureFilename, &outAtlas->width, &outAtlas->height);
 
+        Sprite *previousSprite = nullptr;
+        Sprite *frame0Sprite = nullptr;
         for (auto &frame : doc["frames"].GetArray())
         {
-            Sprite sprite;
+            Sprite sprite {};
 
-            const char *name = frame["filename"].GetString();
+            std::string name(frame["filename"].GetString());
+            sprite.name = name.c_str();
+            const char *frameNumberSep = std::strchr(name.c_str(), '#');
+            assert(frameNumberSep);
+            sprite.frameNumber = std::strtoll(frameNumberSep + 1, nullptr, 10);
 
             auto rect = frame["frame"].GetObject();
             sprite.x = rect["x"].GetInt();
@@ -185,14 +186,40 @@ namespace
             sprite.width = rect["w"].GetInt();
             sprite.height = rect["h"].GetInt();
 
-            sprite.duration = frame["duration"].GetInt();
+            int32 durationMs = frame["duration"].GetInt();
+            sprite.duration = durationMs * 0.001f;
 
             outAtlas->data[std::string(name)] = sprite;
+            Sprite *newSprite = &outAtlas->data.at(name);
+
+            if (previousSprite)
+            {
+                if (sprite.frameNumber == previousSprite->frameNumber + 1)
+                {
+                    previousSprite->nextFrame = newSprite;
+                }
+                else
+                {
+                    previousSprite->nextFrame = frame0Sprite;
+                }
+            }
+
+            if (sprite.frameNumber == 0)
+            {
+                frame0Sprite = newSprite;
+            }
+
+            previousSprite = newSprite;
+        }
+
+        if (previousSprite && frame0Sprite)
+        {
+            previousSprite->nextFrame = frame0Sprite;
         }
     }
 }
 
-void Rendering::Init(int width, int height)
+void Gfx::Init(int width, int height)
 {
     spriteShader = LinkShaders(
         LoadShader("data/sprite.vert", GL_VERTEX_SHADER),
@@ -237,7 +264,7 @@ void Rendering::Init(int width, int height)
     glVertexAttribDivisor(aSpriteRect, 1);
     glEnableVertexAttribArray(aSpriteRect);
 
-    glClearColor(1.0, 1.0, 0.94, 1.0);
+    glClearColor(0.1, 0.1, 0.2, 1.0);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glUseProgram(spriteShader);
@@ -249,12 +276,34 @@ void Rendering::Init(int width, int height)
     glBindTexture(GL_TEXTURE_2D, spriteAtlas.texture);
 }
 
-void Rendering::PreUpdate()
+void Gfx::ReloadAssets()
+{
+    uint32 newSpriteShader = LinkShaders(
+        LoadShader("data/sprite.vert", GL_VERTEX_SHADER),
+        LoadShader("data/sprite.frag", GL_FRAGMENT_SHADER));
+
+    if (newSpriteShader)
+    {
+        glDeleteProgram(spriteShader);
+        spriteShader = newSpriteShader;
+    }
+    else
+    {
+        LOG("Shader recompilation failed. Staying with old shader.");
+    }
+
+    glDeleteTextures(1, &spriteAtlas.texture);
+    spriteAtlas.texture = LoadTexture("data/atlas.png");
+
+    LOG("Reloaded assets");
+}
+
+void Gfx::PreUpdate()
 {
     drawBuffer.clear();
 }
 
-void Rendering::PostUpdate()
+void Gfx::Render()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
@@ -269,32 +318,51 @@ void Rendering::PostUpdate()
     glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr, (int32)drawBuffer.size());
 }
 
-void Draw::Sprite(const char *sprite, int32 x, int32 y)
+void Gfx::DrawSprite(const char *sprite, int32 x, int32 y)
+{
+    DrawSprite(GetSpriteData(sprite), x, y);
+}
+
+void Gfx::DrawSprite(Sprite *sprite, int32 x, int32 y)
 {
     InstanceData data {};
 
     data.x = (float)x;
     data.y = (float)y;
 
+    if (!sprite)
+    {
+        data.width = 16;
+        data.height = 16;
+    }
+    else
+    {
+        data.atlasX = sprite->x;
+        data.atlasY = sprite->y;
+        data.width = sprite->width;
+        data.height = sprite->height;
+    }
+
+    drawBuffer.push_back(data);
+}
+
+Sprite *Gfx::GetSpriteData(const char *sprite)
+{
+    if (!std::strchr(sprite, '#'))
+    {
+        char *name = (char *)Mem::AllocScratch(std::strlen(sprite) + 8);
+        std::strcpy(name, sprite);
+        std::strcat(name, "#000");
+        sprite = name;
+    }
+
     if (spriteAtlas.data.count(sprite) > 0)
     {
-        ::Sprite &spriteInfo = spriteAtlas.data.at(sprite);
-
-        data.atlasX = spriteInfo.x;
-        data.atlasY = spriteInfo.y;
-        data.width = spriteInfo.width;
-        data.height = spriteInfo.height;
+        return &spriteAtlas.data.at(sprite);
     }
     else
     {
         LOG(AC_RED "No sprite named %s", sprite);
-
-        data.atlasX = 0;
-        data.atlasY = 0;
-        data.width = 16;
-        data.height = 16;
+        return nullptr;
     }
-
-    
-    drawBuffer.push_back(data);
 }

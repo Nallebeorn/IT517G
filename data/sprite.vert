@@ -15,9 +15,8 @@ void main()
     vTexCoord = aVertexPos + 0.5;
     vTexCoord.y = 1.0 - vTexCoord.y;
     vTexCoord = clamp(vTexCoord, 0.0, 1.0); 
-//    vTexCoord *= vec2(16) / vec2(1024);
-    vTexCoord *= vec2(22, 18) / uAtlasSize;
-//    vTexCoord += aSpriteRect.xy * (1.0 / uAtlasSize);
+    vTexCoord *= aSpriteRect.zw / uAtlasSize;
+    vTexCoord += aSpriteRect.xy * (1.0 / uAtlasSize);
 
     // Input position is pixel-coordinates with (0,0) as top-left.
     // This is converted to clip space.

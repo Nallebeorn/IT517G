@@ -19,6 +19,7 @@ namespace Application
     {
         T *newEntity = new T(args...);
         AddEntity(newEntity);
+        newEntity->Create();
         return newEntity;
     }
 

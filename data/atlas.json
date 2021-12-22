@@ -1,6 +1,15 @@
 { "frames": [
    {
-    "filename": "Nalle.Idle#000",
+    "filename": "Bullet#000",
+    "frame": { "x": 110, "y": 0, "w": 8, "h": 7 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 7 },
+    "sourceSize": { "w": 8, "h": 7 },
+    "duration": 100
+   },
+   {
+    "filename": "NalleIdle#000",
     "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
@@ -9,7 +18,7 @@
     "duration": 300
    },
    {
-    "filename": "Nalle.Idle#001",
+    "filename": "NalleIdle#001",
     "frame": { "x": 22, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
@@ -18,7 +27,7 @@
     "duration": 300
    },
    {
-    "filename": "Nalle.Idle#002",
+    "filename": "NalleIdle#002",
     "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
@@ -27,7 +36,7 @@
     "duration": 300
    },
    {
-    "filename": "Nalle.Idle#003",
+    "filename": "NalleIdle#003",
     "frame": { "x": 44, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
@@ -36,7 +45,7 @@
     "duration": 300
    },
    {
-    "filename": "Nalle.Fire#000",
+    "filename": "NalleFire#000",
     "frame": { "x": 66, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
@@ -45,67 +54,13 @@
     "duration": 100
    },
    {
-    "filename": "Nalle.Fire#001",
+    "filename": "NalleFire#001",
     "frame": { "x": 88, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
     "sourceSize": { "w": 22, "h": 18 },
     "duration": 100
-   },
-   {
-    "filename": "Player.Idle#000",
-    "frame": { "x": 110, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 400
-   },
-   {
-    "filename": "Player.Idle#001",
-    "frame": { "x": 126, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 200
-   },
-   {
-    "filename": "Player.Idle#002",
-    "frame": { "x": 142, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 200
-   },
-   {
-    "filename": "Player.Idle#003",
-    "frame": { "x": 158, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 400
-   },
-   {
-    "filename": "Player.Idle#004",
-    "frame": { "x": 174, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 200
-   },
-   {
-    "filename": "Player.Idle#005",
-    "frame": { "x": 110, "y": 0, "w": 16, "h": 16 },
-    "rotated": false,
-    "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 16, "h": 16 },
-    "sourceSize": { "w": 16, "h": 16 },
-    "duration": 400
    }
  ],
  "meta": {

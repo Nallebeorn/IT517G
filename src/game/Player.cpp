@@ -2,24 +2,39 @@
 
 #include <cmath>
 
+#include <motor/Application.hpp>
+#include <motor/Gfx.hpp>
+#include <motor/Input.hpp>
 #include <motor/Math.hpp>
-#include "motor/Draw.hpp"
-#include "motor/Input.hpp"
-#include "motor/Time.hpp"
+#include <motor/Time.hpp>
 #include <motor/logging.hpp>
+
+#include "Bullet.hpp"
+
+void Player::Create()
+{
+    animator.Play("NalleIdle");
+}
 
 void Player::Update()
 {
+    animator.Update();
+
     float speed = 64;
 
-    if (Input::WasInputJustPressed(GLFW_KEY_SPACE))
+    if (fireCooldown > 0)
     {
-        LOG("Pressed space!");
+        fireCooldown -= Time::Delta();
     }
-    
-    if (Input::WasInputJustReleased(GLFW_KEY_SPACE))
+
+    if (Input::IsInputDown(GLFW_KEY_SPACE) && fireCooldown <= 0)
     {
-        LOG("Released space!");
+        animator.PlayOnceThen("NalleFire", "NalleIdle");
+        fireCooldown = 0.15f;
+        x -= 1;
+        auto bullet = Application::CreateEntity<Bullet>();
+        bullet->x = x + 8;
+        bullet->y = y;
     }
 
     int32 movex = Input::IsInputDown(GLFW_KEY_RIGHT) - Input::IsInputDown(GLFW_KEY_LEFT);
@@ -34,6 +49,9 @@ void Player::Update()
     y += movey * speed * Time::Delta();
 
     int32 displayX, displayY;
+
+    //displayX = x;
+    //displayY = y;
 
     // Pixel-perfect movement smoothing, based on [https://gamedev.stackexchange.com/questions/18787/how-does-one-avoid-the-staircase-effect-in-pixel-art-motion]
     // Prevents jittery staircase effect when moving in non-orthogonal directions
@@ -55,41 +73,5 @@ void Player::Update()
         }
     }
 
-    Draw::Sprite("Nalle.Fire#000", displayX, displayY);
-}
-
-void Player::MoveX(float amount)
-{
-    xMoveAccumulator += amount;
-    int32 move = std::trunc(xMoveAccumulator);
-
-    if (move != 0)
-    {
-        xMoveAccumulator -= move;
-        int32 sign = Math::Sign(move);
-
-        while (move != 0)
-        {
-            x += sign;
-            move -= sign;
-        }
-    }
-}
-
-void Player::MoveY(float amount)
-{
-    yMoveAccumulator += amount;
-    int32 move = std::trunc(yMoveAccumulator);
-
-    if (move != 0)
-    {
-        yMoveAccumulator -= move;
-        int32 sign = Math::Sign(move);
-
-        while (move != 0)
-        {
-            y += sign;
-            move -= sign;
-        }
-    }
+    Gfx::DrawSprite(animator.GetSprite(), displayX, displayY);
 }

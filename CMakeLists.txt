@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Statically link MSVC
 
-add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp src/motor/Rendering.cpp src/motor/Rendering.hpp src/motor/Draw.hpp src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp  "src/motor/Time.hpp" "src/motor/Entity.hpp" "src/game/Player.hpp" "src/game/Player.cpp" "src/motor/Math.hpp")
+add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp "src/motor/Gfx.cpp" "src/motor/Gfx.hpp"  src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp  "src/motor/Time.hpp" "src/motor/Entity.hpp" "src/game/Player.hpp" "src/game/Player.cpp" "src/motor/Math.hpp" "src/motor/components/SpriteAnimator.hpp" "src/motor/components/SpriteAnimator.cpp" "src/game/Bullet.cpp" "src/game/Bullet.hpp")
 
 target_include_directories(game PRIVATE src)
 
@@ -22,7 +22,8 @@ set(SPRITE_DATA "${CMAKE_CURRENT_SOURCE_DIR}/data/atlas.json")
 set(ASEPRITE_EXECUTABLE CACHE FILEPATH "Path to aseprite.exe")
 
 add_custom_target(generate_sprite_sheet ALL
-	COMMAND "${ASEPRITE_EXECUTABLE}" -b --filename-format "{title}.{tag}#{tagframe000}" ${CMAKE_CURRENT_SOURCE_DIR}/assets/sprites/* --data ${SPRITE_DATA} --format json-array --sheet ${SPRITE_SHEET} --sheet-pack --sheet-width 1024 --sheet-height 1024)
+	COMMENT "Exporting Aseprite assets"
+	COMMAND "${ASEPRITE_EXECUTABLE}" -b --filename-format "{title}{tag}#{tagframe000}" ${CMAKE_CURRENT_SOURCE_DIR}/assets/sprites/* --data ${SPRITE_DATA} --format json-array --sheet ${SPRITE_SHEET} --sheet-pack --sheet-width 1024 --sheet-height 1024)
 
 if (MSVC AND CMAKE_BUILD_TYPE MATCHES Debug)
 	target_compile_options(game PRIVATE "/ZI")

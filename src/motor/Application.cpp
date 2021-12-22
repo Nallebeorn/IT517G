@@ -5,12 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include "Draw.hpp"
 #include "Entity.hpp"
 #include "File.hpp"
 #include "Input.hpp"
 #include "Mem.hpp"
-#include "Rendering.hpp"
+#include "Gfx.hpp"
 #include "Time.hpp"
 #include "logging.hpp"
 #include "motor/libs/glad.h"
@@ -44,7 +43,7 @@ namespace
 
     void GlfwErrorCallback(int32 code, const char *description)
     {
-        printf("<<GLFW>> (%d) %s\n", code, description);
+        LOG("<<GLFW>> (%d) %s\n", code, description);
     }
 
     void GlfwFramebufferResizeCallback(GLFWwindow *window, int32 width, int32 height)
@@ -72,6 +71,11 @@ namespace
 
     void APIENTRY GlErrorCallback(GLenum source, GLenum type, uint32 id, GLenum severity, GLsizei /*length*/, const char *message, const void * /*userParam*/)
     {
+        if (id == 131185)
+        {
+            return;
+        }
+
         const char *sourceText;
         switch (source)
         {
@@ -116,13 +120,14 @@ namespace
             {
                 color = AC_RED;
             }
-            printf("\n%s<<GL-%s>> %s: %s: (%d) %s\n" AC_RESET, color, severityText, sourceText, typeText, id, message);
+            LOG("%s<<GL-%s>> %s: %s: (%d)\n\t\t%s\n" AC_RESET, color, severityText, sourceText, typeText, id, message);
         }
     }
 
     void Update()
     {
         static bool paused;
+        constexpr int32 dbgKeyReload = GLFW_KEY_F5;
         constexpr int32 dbgKeyPause = GLFW_KEY_F7;
         constexpr int32 dbgKeyStep = GLFW_KEY_F8;
 
@@ -130,20 +135,28 @@ namespace
 
         glfwPollEvents();
 
+        if (Input::WasInputJustPressed(dbgKeyReload))
+        {
+            Gfx::ReloadAssets();
+        }
+
         if (Input::WasInputJustPressed(dbgKeyPause))
         {
             paused = !paused;
             LOG("%s", paused ? "DEBUG PAUSED" : "DEBUG UNPAUSED");
         }
 
-        if (paused && !Input::WasInputJustPressed(dbgKeyStep))
+        if (paused)
         {
-            Input::ClearInputState(dbgKeyPause);
-            return;
-        }
-        else if (paused && Input::WasInputJustPressed(dbgKeyStep))
-        {
-            LOG("STEP FRAME");
+            if (Input::WasInputJustPressed(dbgKeyStep))
+            {
+                LOG("STEP FRAME");
+            }
+            else
+            {
+                Input::ClearInputState(dbgKeyPause);
+                return;     
+            }
         }
 
         if (Input::WasInputJustPressed(GLFW_KEY_ENTER) && Input::IsInputDown(GLFW_KEY_LEFT_ALT))
@@ -152,17 +165,18 @@ namespace
         }
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewportFbo);
-        Rendering::PreUpdate();
+        Gfx::PreUpdate();
 
-        for (Entity *entity : entityList)
+        for (size_t i = 0; i < entityList.size(); i++)
         {
+            Entity *entity = entityList[i];
             if (entity->enabled)
             {
                 entity->Update();
             }
         }
 
-        Draw::Sprite("Nalle.Idle#001", 200, 50);
+        Gfx::DrawSprite("NalleIdle", 200, 50);
 
         Input::PostUpdate();
     }
@@ -182,6 +196,8 @@ void Application::InitAndCreateWindow(int32 renderWidth, int32 renderHeight, con
         exit(1);
     }
 
+    double initStartTime = glfwGetTime();
+
     glfwSetErrorCallback(&GlfwErrorCallback);
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -199,9 +215,11 @@ void Application::InitAndCreateWindow(int32 renderWidth, int32 renderHeight, con
 
     appWindow.glfwWindow = glfwCreateWindow(appWindow.width, appWindow.height, title, nullptr, nullptr);
 
+    LOG(AC_GREEN "Create window took %.3fms", (glfwGetTime() - initStartTime) * 1000);
+    initStartTime = glfwGetTime();
+
     if (!appWindow.glfwWindow)
     {
-
         const char *errorMessage;
         glfwGetError(&errorMessage);
         Application::ShowError("OpenGL context creation failed", errorMessage);
@@ -245,10 +263,13 @@ void Application::InitAndCreateWindow(int32 renderWidth, int32 renderHeight, con
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     Input::Init();
-    Rendering::Init(renderWidth, renderHeight);
+    Gfx::Init(renderWidth, renderHeight);
 
     entityList.reserve(256);
 
+    double initDuration = glfwGetTime() - initStartTime;
+    LOG(AC_GREEN "Init took %.3fms", initDuration * 1000);
+    
     fflush(stdout);
 }
 
@@ -294,7 +315,7 @@ void Application::RunMainLoop()
             Update();
         }
 
-        Rendering::PostUpdate();
+        Gfx::Render();
 
         glBindFramebuffer(GL_READ_FRAMEBUFFER, viewportFbo);
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -333,7 +354,7 @@ void Application::SetFullscreen(bool fullscreen)
                              appWindow.rememberedWindowedWidth, appWindow.rememberedWindowedHeight, 0);
     }
 
-    //glfwSwapInterval(1);
+    glfwSwapInterval(1);
 }
 
 GLFWwindow *Application::GetWindow()

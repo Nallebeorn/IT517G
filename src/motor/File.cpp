@@ -28,9 +28,9 @@ char *File::LoadIntoNewBuffer(const char *filename, size_t *outLength)
         return nullptr;
     }
 
-    size_t fileLen    = GetFileSize(file);
+    size_t fileLen = GetFileSize(file);
     size_t bufferSize = fileLen + 1; // Need null terminator at end
-    char *buffer      = (char *)malloc(bufferSize);
+    char *buffer = (char *)malloc(bufferSize);
 
     if (buffer)
     {
@@ -58,9 +58,9 @@ char *File::LoadIntoScratch(const char *filename, size_t *outLength)
         return nullptr;
     }
 
-    size_t fileLen    = GetFileSize(file);
+    size_t fileLen = GetFileSize(file);
     size_t bufferSize = fileLen + 1; // Need null terminator at end
-    auto *buffer      = (char *)Mem::AllocScratch(bufferSize);
+    auto *buffer = (char *)Mem::AllocScratch(bufferSize);
     fread(buffer, 1, fileLen, file);
     buffer[bufferSize - 1] = '\0';
 
@@ -91,7 +91,7 @@ bool File::DoesDirectoryExist(const char *path)
 char *File::GetWorkingDirectory()
 {
     DWORD length = GetCurrentDirectoryA(0, nullptr);
-    auto buffer  = (char *)Mem::AllocScratch(length);
+    auto buffer = (char *)Mem::AllocScratch(length);
     GetCurrentDirectoryA(length, buffer);
     return buffer;
 }
@@ -100,7 +100,7 @@ char *File::ReplaceFilename(const char *sourcePath, const char *newFilename)
 {
     size_t newFilenameLen = std::strlen(newFilename);
     size_t length = std::strlen(sourcePath) + newFilenameLen + 1; // +1 for path separator (/)
-    char *outString = (char *)Mem::AllocScratch(length + 1); // +1 for null terminator
+    char *outString = (char *)Mem::AllocScratch(length + 1);      // +1 for null terminator
     const char *lastSlash = std::strrchr(sourcePath, '/');
     if (lastSlash == nullptr)
     {
