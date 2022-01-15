@@ -1,4 +1,5 @@
 #include "SpriteAnimator.hpp"
+#include "motor/Entity.hpp"
 #include "motor/Gfx.hpp"
 #include "motor/Time.hpp"
 #include "motor/logging.hpp"
@@ -11,6 +12,7 @@ void SpriteAnimator::Update()
         while (timer > currentSprite->duration)
         {
             timer -= currentSprite->duration;
+            Gfx::Sprite *previousSprite = currentSprite;
             currentSprite = currentSprite->nextFrame;
             if (!currentSprite)
             {
@@ -20,7 +22,12 @@ void SpriteAnimator::Update()
             frame = currentSprite->frameNumber;
             if (frame == 0)
             {
-                if (queuedSprite)
+                if (queuedDestroy)
+                {
+                    queuedDestroy->Destroy();
+                    currentSprite = previousSprite;
+                }
+                else if (queuedSprite)
                 {
                     currentSprite = queuedSprite;
                     frame = queuedSprite->frameNumber;
@@ -51,4 +58,10 @@ void SpriteAnimator::PlayOnceThen(const char *first, const char *then)
 {
     Play(first);
     queuedSprite = Gfx::GetSpriteData(then);
+}
+
+void SpriteAnimator::PlayOnceThenDestroy(const char *animation, Entity *entityToDestroy)
+{
+    Play(animation);
+    queuedDestroy = entityToDestroy;
 }

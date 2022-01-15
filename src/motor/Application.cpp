@@ -1,18 +1,22 @@
 #include "Application.hpp"
+
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+
+#include "Collision.hpp"
 #include "Entity.hpp"
 #include "File.hpp"
+#include "Gfx.hpp"
 #include "Input.hpp"
 #include "Mem.hpp"
-#include "Gfx.hpp"
 #include "Time.hpp"
 #include "logging.hpp"
 #include "motor/libs/glad.h"
+#include <motor/Random.hpp>
 
 namespace
 {
@@ -39,7 +43,8 @@ namespace
     double deltaTime;
     double currentTime;
 
-    std::vector<Entity *> entityList;
+    Entity *firstEntity;
+    Entity *lastEntity;
 
     void GlfwErrorCallback(int32 code, const char *description)
     {
@@ -124,6 +129,52 @@ namespace
         }
     }
 
+    void UpdateEntities()
+    {
+        for (Entity *entity = firstEntity; entity != nullptr; entity = entity->nextEntity)
+        {
+            if (entity->enabled)
+            {
+                entity->Update();
+            }
+        }
+    }
+
+    void DeletePendingEntities()
+    {
+        for (Entity *entity = firstEntity; entity != nullptr;)
+        {
+            Entity *nextEntity = entity->nextEntity;
+
+            if (entity->isPendingDelete)
+            {
+                if (entity->prevEntity)
+                {
+                    entity->prevEntity->nextEntity = entity->nextEntity;
+                }
+
+                if (entity->nextEntity)
+                {
+                    entity->nextEntity->prevEntity = entity->prevEntity;
+                }
+
+                if (entity == firstEntity)
+                {
+                    firstEntity = entity->nextEntity;
+                }
+
+                if (entity == lastEntity)
+                {
+                    lastEntity = entity->prevEntity;
+                }
+
+                delete entity;
+            }
+
+            entity = nextEntity;
+        }
+    }
+
     void Update()
     {
         static bool paused;
@@ -132,6 +183,8 @@ namespace
         constexpr int32 dbgKeyStep = GLFW_KEY_F8;
 
         Mem::ResetScratch();
+
+        currentTime += Time::Delta();
 
         glfwPollEvents();
 
@@ -155,7 +208,7 @@ namespace
             else
             {
                 Input::ClearInputState(dbgKeyPause);
-                return;     
+                return;
             }
         }
 
@@ -165,19 +218,11 @@ namespace
         }
 
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, viewportFbo);
+
         Gfx::PreUpdate();
-
-        for (size_t i = 0; i < entityList.size(); i++)
-        {
-            Entity *entity = entityList[i];
-            if (entity->enabled)
-            {
-                entity->Update();
-            }
-        }
-
-        Gfx::DrawSprite("NalleIdle", 200, 50);
-
+        UpdateEntities();
+        Collision::PostUpdate();
+        DeletePendingEntities();
         Input::PostUpdate();
     }
 }
@@ -264,12 +309,11 @@ void Application::InitAndCreateWindow(int32 renderWidth, int32 renderHeight, con
 
     Input::Init();
     Gfx::Init(renderWidth, renderHeight);
-
-    entityList.reserve(256);
+    Random::Init();
 
     double initDuration = glfwGetTime() - initStartTime;
     LOG(AC_GREEN "Init took %.3fms", initDuration * 1000);
-    
+
     fflush(stdout);
 }
 
@@ -292,9 +336,9 @@ void Application::RunMainLoop()
 
     while (!glfwWindowShouldClose(appWindow.glfwWindow))
     {
-        currentTime = glfwGetTime();
-        deltaTime = currentTime - prevFrameTime;
-        prevFrameTime = currentTime;
+        double newTime= glfwGetTime();
+        deltaTime = newTime - prevFrameTime;
+        prevFrameTime = newTime;
         deltaTime = std::clamp(deltaTime, 0.0, 1.0 / minFrameRate);
 
         for (double snap : snapTimesteps)
@@ -307,13 +351,14 @@ void Application::RunMainLoop()
         }
 
         timeAccumulator += deltaTime;
-        currentTime += deltaTime;
 
         while (timeAccumulator > 1.0 / targetFrameRate)
         {
             timeAccumulator -= 1.0 / targetFrameRate;
             Update();
         }
+
+        //LOG("FPS: %f", 1.0 / deltaTime);
 
         Gfx::Render();
 
@@ -364,7 +409,28 @@ GLFWwindow *Application::GetWindow()
 
 void Application::AddEntity(Entity *entity)
 {
-    entityList.push_back(entity);
+    entity->nextEntity = nullptr;
+    entity->prevEntity = lastEntity;
+
+    if (!firstEntity)
+    {
+        firstEntity = entity;
+    }
+
+    if (lastEntity)
+    {
+        lastEntity->nextEntity = entity;
+    }
+
+    lastEntity = entity;
+}
+
+void Application::DestroyAllEntities()
+{
+    for (Entity *entity = firstEntity; entity != nullptr; entity = entity->nextEntity)
+    {
+        entity->Destroy();
+    }
 }
 
 double Time::AtFrameBegin()

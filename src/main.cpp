@@ -1,15 +1,13 @@
-#include <cstdlib>
-
 #include "motor/Application.hpp"
 #include "motor/logging.hpp"
-#include "game/Player.hpp"
+#include <game/ShmupGame.hpp>
 
 int main()
 {
     LOG("Launching IT517G...");
 
-    Application::InitAndCreateWindow(320, 180, "Fördjupningsarbete i spelutveckling");
-    Application::CreateEntity<Player>();
+    Application::InitAndCreateWindow(ShmupGame::width, ShmupGame::height, "Fördjupningsarbete i spelutveckling");
+    Application::CreateEntity<ShmupGame>();
     Application::RunMainLoop();
     Application::CleanUp();
 

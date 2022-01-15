@@ -1,0 +1,11 @@
+Determining if the include file pthread.h exists failed with the following output:
+Change Dir: A:/Documents/Kodprojekt/IT517G/out/build/x64-Debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):A:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_dc80f && [1/2] Building C object CMakeFiles\cmTC_dc80f.dir\CheckIncludeFile.c.obj
+FAILED: CMakeFiles/cmTC_dc80f.dir/CheckIncludeFile.c.obj 
+"A:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.30.30705\bin\Hostx64\x64\cl.exe"  /nologo   /DWIN32 /D_WINDOWS  /Zi /Ob0 /Od /RTC1 -MTd /showIncludes /FoCMakeFiles\cmTC_dc80f.dir\CheckIncludeFile.c.obj /FdCMakeFiles\cmTC_dc80f.dir\ /FS -c A:\Documents\Kodprojekt\IT517G\out\build\x64-Debug\CMakeFiles\CMakeTmp\CheckIncludeFile.c
+A:\Documents\Kodprojekt\IT517G\out\build\x64-Debug\CMakeFiles\CMakeTmp\CheckIncludeFile.c(1): fatal error C1083: Cannot open include file: 'pthread.h': No such file or directory
+ninja: build stopped: subcommand failed.
+
+
+

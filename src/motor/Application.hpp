@@ -13,6 +13,7 @@ namespace Application
     void SetFullscreen(bool fullscreen);
     GLFWwindow *GetWindow();
     void AddEntity(Entity *entity);
+    void DestroyAllEntities();
 
     template<typename T, typename... Args>
     T *CreateEntity(Args... args)

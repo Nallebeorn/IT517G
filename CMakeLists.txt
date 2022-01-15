@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>") # Statically link MSVC
 
-add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp "src/motor/Gfx.cpp" "src/motor/Gfx.hpp"  src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp  "src/motor/Time.hpp" "src/motor/Entity.hpp" "src/game/Player.hpp" "src/game/Player.cpp" "src/motor/Math.hpp" "src/motor/components/SpriteAnimator.hpp" "src/motor/components/SpriteAnimator.cpp" "src/game/Bullet.cpp" "src/game/Bullet.hpp")
+add_executable(game src/main.cpp src/motor/logging.hpp src/motor/libs/glad.h src/motor/libs/implementations.cpp src/motor/File.cpp src/motor/File.hpp src/motor/Application.cpp src/motor/Application.hpp src/motor/Application_win.cpp src/motor/Input.cpp src/motor/Input.hpp "src/motor/Gfx.cpp" "src/motor/Gfx.hpp"  src/motor/typedefs.hpp src/motor/Mem.cpp src/motor/Mem.hpp  "src/motor/Time.hpp" "src/motor/Entity.hpp" "src/game/Player.hpp" "src/game/Player.cpp" "src/motor/Math.hpp" "src/motor/components/SpriteAnimator.hpp" "src/motor/components/SpriteAnimator.cpp" "src/game/Bullet.cpp" "src/game/Bullet.hpp"  "src/game/Enemy.hpp" "src/game/Enemy.cpp" "src/game/ShmupGame.hpp" "src/game/ShmupGame.cpp" "src/motor/Collision.hpp" "src/motor/Collision.cpp" "src/motor/Random.hpp" "src/motor/Random.cpp" "src/game/EnemyBullet.hpp" "src/game/EnemyBullet.cpp" "src/motor/Math.cpp")
 
 target_include_directories(game PRIVATE src)
 

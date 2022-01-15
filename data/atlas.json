@@ -1,7 +1,7 @@
 { "frames": [
    {
     "filename": "Bullet#000",
-    "frame": { "x": 110, "y": 0, "w": 8, "h": 7 },
+    "frame": { "x": 896, "y": 31, "w": 8, "h": 7 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 7 },
@@ -9,8 +9,107 @@
     "duration": 100
    },
    {
+    "filename": "Enemy#000",
+    "frame": { "x": 797, "y": 31, "w": 20, "h": 15 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 15 },
+    "sourceSize": { "w": 20, "h": 15 },
+    "duration": 32
+   },
+   {
+    "filename": "Enemy#001",
+    "frame": { "x": 817, "y": 31, "w": 20, "h": 15 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 20, "h": 15 },
+    "sourceSize": { "w": 20, "h": 15 },
+    "duration": 32
+   },
+   {
+    "filename": "EnemyBullet#000",
+    "frame": { "x": 904, "y": 31, "w": 6, "h": 6 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 6 },
+    "sourceSize": { "w": 6, "h": 6 },
+    "duration": 100
+   },
+   {
+    "filename": "EnemyBullet#001",
+    "frame": { "x": 910, "y": 31, "w": 6, "h": 6 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 6, "h": 6 },
+    "sourceSize": { "w": 6, "h": 6 },
+    "duration": 100
+   },
+   {
+    "filename": "EnemyDeath#000",
+    "frame": { "x": 797, "y": 0, "w": 38, "h": 31 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 38, "h": 31 },
+    "sourceSize": { "w": 38, "h": 31 },
+    "duration": 40
+   },
+   {
+    "filename": "EnemyDeath#001",
+    "frame": { "x": 835, "y": 0, "w": 38, "h": 31 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 38, "h": 31 },
+    "sourceSize": { "w": 38, "h": 31 },
+    "duration": 40
+   },
+   {
+    "filename": "EnemyDeath#002",
+    "frame": { "x": 873, "y": 0, "w": 38, "h": 31 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 38, "h": 31 },
+    "sourceSize": { "w": 38, "h": 31 },
+    "duration": 60
+   },
+   {
+    "filename": "EnemyDeath#003",
+    "frame": { "x": 911, "y": 0, "w": 38, "h": 31 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 38, "h": 31 },
+    "sourceSize": { "w": 38, "h": 31 },
+    "duration": 40
+   },
+   {
+    "filename": "Forest#000",
+    "frame": { "x": 253, "y": 0, "w": 272, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 272, "h": 160 },
+    "sourceSize": { "w": 272, "h": 160 },
+    "duration": 100
+   },
+   {
+    "filename": "GameOver#000",
+    "frame": { "x": 0, "y": 0, "w": 253, "h": 200 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 253, "h": 200 },
+    "sourceSize": { "w": 253, "h": 200 },
+    "duration": 100
+   },
+   {
+    "filename": "Mountains#000",
+    "frame": { "x": 525, "y": 0, "w": 272, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 272, "h": 160 },
+    "sourceSize": { "w": 272, "h": 160 },
+    "duration": 100
+   },
+   {
     "filename": "NalleIdle#000",
-    "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 949, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
@@ -19,7 +118,7 @@
    },
    {
     "filename": "NalleIdle#001",
-    "frame": { "x": 22, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 971, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
@@ -28,7 +127,7 @@
    },
    {
     "filename": "NalleIdle#002",
-    "frame": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 949, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
@@ -37,7 +136,7 @@
    },
    {
     "filename": "NalleIdle#003",
-    "frame": { "x": 44, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 993, "y": 0, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
@@ -46,7 +145,7 @@
    },
    {
     "filename": "NalleFire#000",
-    "frame": { "x": 66, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 949, "y": 18, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
@@ -55,17 +154,143 @@
    },
    {
     "filename": "NalleFire#001",
-    "frame": { "x": 88, "y": 0, "w": 22, "h": 18 },
+    "frame": { "x": 971, "y": 18, "w": 22, "h": 18 },
     "rotated": false,
     "trimmed": false,
     "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
     "sourceSize": { "w": 22, "h": 18 },
     "duration": 100
+   },
+   {
+    "filename": "NalleDead#000",
+    "frame": { "x": 993, "y": 18, "w": 22, "h": 18 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 22, "h": 18 },
+    "sourceSize": { "w": 22, "h": 18 },
+    "duration": 100
+   },
+   {
+    "filename": "NalleHead#000",
+    "frame": { "x": 837, "y": 31, "w": 11, "h": 9 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 11, "h": 9 },
+    "sourceSize": { "w": 11, "h": 9 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#000",
+    "frame": { "x": 1015, "y": 0, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#001",
+    "frame": { "x": 1015, "y": 8, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#002",
+    "frame": { "x": 1015, "y": 16, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#003",
+    "frame": { "x": 1015, "y": 24, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#004",
+    "frame": { "x": 848, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#005",
+    "frame": { "x": 856, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#006",
+    "frame": { "x": 864, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#007",
+    "frame": { "x": 872, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#008",
+    "frame": { "x": 880, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Numbers#009",
+    "frame": { "x": 888, "y": 31, "w": 8, "h": 8 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 8, "h": 8 },
+    "sourceSize": { "w": 8, "h": 8 },
+    "duration": 100
+   },
+   {
+    "filename": "Sky#000",
+    "frame": { "x": 253, "y": 160, "w": 272, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 272, "h": 160 },
+    "sourceSize": { "w": 272, "h": 160 },
+    "duration": 100
+   },
+   {
+    "filename": "UIBar#000",
+    "frame": { "x": 525, "y": 160, "w": 320, "h": 20 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 320, "h": 20 },
+    "sourceSize": { "w": 320, "h": 20 },
+    "duration": 100
    }
  ],
  "meta": {
   "app": "https://www.aseprite.org/",
-  "version": "1.2.30-x64",
+  "version": "1.2.32-x64",
   "image": "atlas.png",
   "format": "RGBA8888",
   "size": { "w": 1024, "h": 1024 },

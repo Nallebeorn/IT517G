@@ -1,0 +1,26 @@
+# ninja log v5
+2	267	6596685908557893	CMakeFiles/game.dir/src/main.cpp.obj	c6ba4f3a382155a
+26	260	6596686839708164	CMakeFiles/game.dir/src/motor/Application.cpp.obj	bf8f5e1ade474108
+159	527	6596685910708386	CMakeFiles/game.dir/src/motor/Input.cpp.obj	106f8815104c3f33
+2	206	6596687013941385	CMakeFiles/game.dir/src/motor/Mem.cpp.obj	2b607930ee730e6
+1616	2246	6596685928422379	deps/glfw/src/CMakeFiles/glfw.dir/wgl_context.c.obj	b0955d58997782c1
+221	1059	6596685916549701	deps/glfw/src/CMakeFiles/glfw.dir/context.c.obj	b026bc2f075743d3
+275	1007	6596685915829547	deps/glfw/src/CMakeFiles/glfw.dir/init.c.obj	218371099d2f6d30
+51	470	6596686841818734	CMakeFiles/game.dir/src/motor/Rendering.cpp.obj	be490b2bda5e9845
+235	1086	6596685916769734	deps/glfw/src/CMakeFiles/glfw.dir/input.c.obj	bcb344029a13121d
+1335	2072	6596685926681975	deps/glfw/src/CMakeFiles/glfw.dir/egl_context.c.obj	b5e35573dce8d293
+527	1315	6596685919090274	deps/glfw/src/CMakeFiles/glfw.dir/window.c.obj	c2e5a45da624ac26
+505	1335	6596685919270299	deps/glfw/src/CMakeFiles/glfw.dir/monitor.c.obj	dc9c6aba893fdb29
+557	1349	6596685919330315	deps/glfw/src/CMakeFiles/glfw.dir/vulkan.c.obj	ee1cc19c5beb08da
+75	1616	6596685921830882	CMakeFiles/game.dir/src/motor/Application_win.cpp.obj	e57e71c71df3d603
+2	737	6596686844479239	CMakeFiles/game.dir/src/motor/File.cpp.obj	c65594b2725f6d5
+1008	1738	6596685923301215	deps/glfw/src/CMakeFiles/glfw.dir/win32_init.c.obj	17d182b1a59eb945
+1061	1766	6596685923621283	deps/glfw/src/CMakeFiles/glfw.dir/win32_time.c.obj	6863161a931a3a0d
+1038	1915	6596685925091622	deps/glfw/src/CMakeFiles/glfw.dir/win32_joystick.c.obj	aac170f444f63463
+1086	1933	6596685925191641	deps/glfw/src/CMakeFiles/glfw.dir/win32_monitor.c.obj	b6159075707642b4
+1349	2001	6596685925951824	deps/glfw/src/CMakeFiles/glfw.dir/win32_thread.c.obj	f6a78e7fee68ccf
+1316	2052	6596685926471944	deps/glfw/src/CMakeFiles/glfw.dir/osmesa_context.c.obj	354dce144d5c7899
+26	2270	6596685928592403	CMakeFiles/game.dir/src/motor/libs/implementations.cpp.obj	1ceb1222d6fc79cc
+1628	2307	6596685929052517	deps/glfw/src/CMakeFiles/glfw.dir/win32_window.c.obj	fcdc678272c4253f
+2308	2400	6596685929882702	deps/glfw/src/glfw3.lib	27bd6d8edf2faf27
+206	937	6596687021022978	game.exe	f44d64fdc49b1f14

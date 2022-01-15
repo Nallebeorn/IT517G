@@ -1,5 +1,9 @@
+#pragma once
+
 #include "motor/typedefs.hpp"
 #include "motor/Gfx.hpp"
+
+class Entity;
 
 class SpriteAnimator
 {
@@ -8,10 +12,12 @@ public:
     Gfx::Sprite *GetSprite();
     void Play(const char *sprite);
     void PlayOnceThen(const char *first, const char *then);
+    void PlayOnceThenDestroy(const char *first, Entity *entityToDestroy);
 
 private:
-    int32 frame = 0;
-    float timer = 0;
     Gfx::Sprite *queuedSprite = nullptr;
     Gfx::Sprite *currentSprite = nullptr;
+    Entity *queuedDestroy = nullptr;
+    int32 frame = 0;
+    float timer = 0;
 };
